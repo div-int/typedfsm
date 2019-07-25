@@ -1,0 +1,29 @@
+{
+  "name": "typedfsm",
+  "version": "0.0.0",
+  "description": "A TypeScript finite state machine library",
+  "main": "index.js",
+  "scripts": {
+    "lint": "npx tslint -p .",
+    "lint-fix": "npx tslint -p . --fix",
+    "watch": "npx tsc -w",
+    "build": "npx tsc",
+    "start": "node ./dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "git+https://github.com/div-int/typedfsm.git",
+  "author": "Div Int Software",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/div-int/typedfsm/issues"
+  },
+  "homepage": "https://github.com/div-int/typedfsm#readme",
+  "devDependencies": {
+    "prettier": "^1.18.2",
+    "tslint": "^5.18.0",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "tslint-config-airbnb": "^5.11.1"
+  }
+}
