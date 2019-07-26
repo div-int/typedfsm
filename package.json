@@ -21,6 +21,7 @@
   "devDependencies": {
     "tslint": "^5.18.0",
     "tslint-config-airbnb": "^5.11.1",
+    "tsutils": "^3.14.1",
     "typescript": "^3.5.3",
     "typescript-tslint-plugin": "^0.5.4"
   },
