@@ -59,10 +59,27 @@ export namespace Typed {
     }
   }
 
+  export interface OnPreChange<T> {
+    (from: T, to: T): boolean;
+  }
+
+  export interface OnPostChange<T> {
+    (from: T, to: T): boolean;
+  }
+  export interface OnEnter<T> {
+    (from: T, to: T): boolean;
+  }
+  export interface OnLeave<T> {
+    (from: T, to: T): boolean;
+  }
   export class FSM<T> {
     private _defaultState: T;
     private _currentState: T;
     private _transitions: Transition<T>[];
+    private _onPreChange: OnPreChange<T>;
+    private _onPostChange: OnPostChange<T>;
+    private _onEnterState: OnEnter<T>;
+    private _onLeaveState: OnLeave<T>;
 
     get defaultState(): T {
       return this._defaultState;
@@ -76,6 +93,22 @@ export namespace Typed {
       return this._transitions;
     }
 
+    set OnPreChange(onPreChange: OnPreChange<T>) {
+      this._onPreChange = onPreChange;
+    }
+
+    set OnPostChange(onPostChange: OnPostChange<T>) {
+      this._onPostChange = onPostChange;
+    }
+
+    set OnEnterState(onEnterState: OnEnter<T>) {
+      this._onEnterState = onEnterState;
+    }
+
+    set OnLeaveState(onLeaveState: OnLeave<T>) {
+      this._onLeaveState = onLeaveState;
+    }
+
     constructor(defaultState: T) {
       this._defaultState = defaultState;
       this._currentState = defaultState;
@@ -86,6 +119,33 @@ export namespace Typed {
         (value: Transition<T>, index: Number, array: Transition<T>[]) => {
           return !(value.fromState === fromState && value.toState === toState);
         },
+      );
+    }
+
+    canChange(changeState: T): boolean {
+      return this.isTransition(this.currentState, changeState);
+    }
+
+    change(changeState: T): T | Error {
+      if (this._onPreChange) {
+        if (!this._onPreChange(this.currentState, changeState)) {
+          return this.currentState;
+        }
+      }
+      if (this.canChange(changeState)) {
+        if (this._onPostChange) {
+          if (this._onPostChange(this.currentState, changeState)) {
+            return (this._currentState = changeState);
+          }
+
+          return this._currentState;
+        }
+
+        return (this._currentState = changeState);
+      }
+
+      return new Error(
+        `Can't change from ${this.currentState} to ${changeState}`,
       );
     }
 
@@ -112,6 +172,8 @@ export namespace Typed {
     }
 
     debug() {
+      console.log(this.currentState);
+
       if (this._transitions) {
         this._transitions.map((transition: Transition<T>) => {
           console.log(
