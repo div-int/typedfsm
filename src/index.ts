@@ -1,5 +1,14 @@
 import { Typed } from './typedfsm';
 
+// const enum GhostStates {
+//   Waiting,
+//   Chasing,
+//   Scatter,
+//   Frightened,
+//   Eaten,
+//   Paused,
+// }
+
 const enum GhostStates {
   Waiting = 'Waiting',
   Chasing = 'Chasing',
@@ -12,38 +21,38 @@ const enum GhostStates {
 const ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
 
 ghostState
-  .from(GhostStates.Waiting)
-  .to(GhostStates.Chasing)
-  .toFrom(GhostStates.Paused);
+  .from(GhostStates.Waiting, 'Wait')
+  .to(GhostStates.Chasing, 'Chase')
+  .toFrom(GhostStates.Paused, 'Pause');
 
-ghostState
-  .from(GhostStates.Chasing)
-  .toFrom(GhostStates.Scatter)
-  .toFrom(GhostStates.Frightened)
-  .toFrom(GhostStates.Paused);
+// ghostState
+//   .from(GhostStates.Chasing, 'Chase')
+//   .toFrom(GhostStates.Scatter, 'Scatter')
+//   .toFrom(GhostStates.Frightened, 'Frighten')
+//   .toFrom(GhostStates.Paused, 'Pause');
 
-ghostState
-  .from(GhostStates.Scatter)
-  .toFrom(GhostStates.Frightened)
-  .toFrom(GhostStates.Paused);
+// ghostState
+//   .from(GhostStates.Scatter, 'Scatter')
+//   .toFrom(GhostStates.Frightened, 'Frighten')
+//   .toFrom(GhostStates.Paused, 'Pause');
 
-ghostState
-  .from(GhostStates.Frightened)
-  .to(GhostStates.Eaten)
-  .toFrom(GhostStates.Paused);
+// ghostState
+//   .from(GhostStates.Frightened, 'Frighten')
+//   .to(GhostStates.Eaten, 'Eaten')
+//   .toFrom(GhostStates.Paused, 'Pause');
 
-ghostState
-  .from(GhostStates.Eaten)
-  .to(GhostStates.Chasing)
-  .to(GhostStates.Scatter)
-  .toFrom(GhostStates.Paused);
+// ghostState
+//   .from(GhostStates.Eaten, 'Eaten')
+//   .to(GhostStates.Scatter, 'Scatter')
+//   .to(GhostStates.Chasing, 'Chase')
+//   .toFrom(GhostStates.Paused, 'Pause');
 
-ghostState.from(GhostStates.Paused);
+// ghostState.from(GhostStates.Paused, 'Pause');
 
-ghostState
-  .from(GhostStates.Frightened)
-  .to(GhostStates.Eaten)
-  .to(GhostStates.Paused);
+// ghostState
+//   .from(GhostStates.Frightened, 'Frighten')
+//   .to(GhostStates.Eaten, 'Eat')
+//   .to(GhostStates.Paused, 'Pause');
 
 console.log(`Current ghost state = ${ghostState.currentState}`);
 
