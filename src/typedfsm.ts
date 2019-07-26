@@ -1,66 +1,76 @@
 export namespace Typed {
   class Transition<T> {
-    private _toState: T;
-    private _fromState: T;
+    private toState: T;
+    private fromState: T;
 
-    get toState() {
-      return this._toState;
+    get ToState() {
+      return this.toState;
     }
 
-    get fromState() {
-      return this._fromState;
+    get FromState() {
+      return this.fromState;
     }
 
-    get transition(): { toState: T; fromState: T } {
+    get Transition(): { toState: T; fromState: T } {
       return {
-        toState: this._toState,
-        fromState: this._fromState,
+        toState: this.toState,
+        fromState: this.fromState,
       };
     }
 
     constructor(toState: T, fromState: T) {
-      this._toState = toState;
-      this._fromState = fromState;
+      this.toState = toState;
+      this.fromState = fromState;
     }
   }
 
   class State<T> {
-    private _fsm: FSM<T>;
-    private _state: T;
-    private _transitions: Transition<T>[];
+    private fsm: FSM<T>;
+    private state: T;
+    private transitions: Transition<T>[];
 
-    get state(): T {
-      return this._state;
+    get State(): T {
+      return this.state;
     }
 
-    get toStates(): T[] {
-      if (this._transitions) {
+    get ToStates(): T[] {
+      if (this.transitions) {
         return [
-          ...this._transitions.map((transition: Transition<T>) => {
-            return transition.toState;
+          ...this.transitions.map((transition: Transition<T>) => {
+            return transition.ToState;
           }),
         ];
-      } else {
-        return [];
       }
+      return [];
+    }
+
+    get FromStates(): T[] {
+      if (this.transitions) {
+        return [
+          ...this.transitions.map((transition: Transition<T>) => {
+            return transition.FromState;
+          }),
+        ];
+      }
+      return [];
     }
 
     constructor(fsm: FSM<T>, state: T) {
-      this._fsm = fsm;
-      this._state = state;
+      this.fsm = fsm;
+      this.state = state;
     }
 
     to(toState: T): State<T> {
-      this._transitions = this._transitions ? this._transitions : new Array<Transition<T>>();
+      this.transitions = this.transitions ? this.transitions : [];
 
-      let newTransition = new Transition<T>(toState, this.state);
-      this._transitions.push(newTransition);
+      const newTransition = new Transition<T>(toState, this.state);
+      this.transitions.push(newTransition);
 
       return this;
     }
 
     from(fromState: T): State<T> {
-      this._fsm.add(fromState).to(this.state);
+      this.fsm.add(fromState).to(this.state);
       return this;
     }
 
@@ -72,41 +82,52 @@ export namespace Typed {
   }
 
   export class FSM<T> {
-    private _defaultState: State<T>;
-    private _currentState: State<T>;
-    private _states: State<T>[];
+    private defaultState: State<T>;
+    private currentState: State<T>;
+    private states: State<T>[];
 
-    get states(): State<T>[] {
-      return this._states;
+    get States(): State<T>[] {
+      return this.states;
     }
 
-    get defaultState(): T {
-      return this._defaultState.state;
+    get DefaultState(): T {
+      return this.defaultState.State;
     }
 
-    get currentState(): T {
-      return this._currentState.state;
+    get CurrentState(): T {
+      return this.currentState.State;
     }
 
     constructor(defaultState: T) {
-      this._defaultState = new State(this, defaultState);
-      this._currentState = this._defaultState;
+      this.defaultState = new State(this, defaultState);
+      this.currentState = this.defaultState;
     }
 
     add(addState: T): State<T> {
-      console.log(`Typed.FSM.add(addState: T = ${addState})`);
+      this.states = this.states ? this.states : [];
 
-      this._states = this._states ? this._states : new Array<State<T>>();
+      let exisitingState: State<T>;
 
-      let newState = new State<T>(this, addState);
-      this._states.push(newState);
-      return newState;
+      const isNewState = this.states.every(
+        (value: State<T>, index: Number, array: State<T>[]) => {
+          exisitingState = value;
+          return value.State !== addState;
+        },
+      );
+
+      if (isNewState) {
+        const state = new State<T>(this, addState);
+        this.states.push(state);
+        return state;
+      }
+
+      return exisitingState;
     }
 
     debug() {
-      if (this._states) {
-        this._states.map((state: State<T>) => {
-          console.log(state.state, ' ---> ', state.toStates);
+      if (this.states) {
+        this.states.map((state: State<T>) => {
+          console.log(state.State, ' ---> ', state.ToStates);
         });
       }
     }

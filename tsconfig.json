@@ -2,10 +2,13 @@
   "compilerOptions": {
     "allowJs": true,
     "module": "CommonJS",
-    "target": "es2016",
+    "target": "es2015",
     "outDir": "./dist/",
     "sourceMap": true,
     "rootDir": "./src",
     "strict": false,
+    "plugins": [{
+      "name": "typescript-tslint-plugin"
+    }]
   }
 }

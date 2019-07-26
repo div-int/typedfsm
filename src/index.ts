@@ -1,15 +1,15 @@
 import { Typed } from './typedfsm';
 
 const enum GhostStates {
-  Waiting,
-  Chasing,
-  Scatter,
-  Frightened,
-  Eaten,
-  Paused,
+  Waiting = 'Waiting',
+  Chasing = 'Chasing',
+  Scatter = 'Scatter',
+  Frightened = 'Frightened',
+  Eaten = 'Eaten',
+  Paused = 'Paused',
 }
 
-let ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
+const ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
 
 ghostState
   .add(GhostStates.Waiting)
@@ -18,21 +18,25 @@ ghostState
 
 ghostState
   .add(GhostStates.Chasing)
-  .to(GhostStates.Scatter)
-  .to(GhostStates.Frightened)
-  .to(GhostStates.Paused);
+  .toFrom(GhostStates.Scatter)
+  .toFrom(GhostStates.Frightened)
+  .toFrom(GhostStates.Paused);
 
 ghostState
   .add(GhostStates.Scatter)
-  .to(GhostStates.Frightened)
-  .to(GhostStates.Paused);
+  .toFrom(GhostStates.Frightened)
+  .toFrom(GhostStates.Paused);
 
 ghostState
   .add(GhostStates.Frightened)
   .to(GhostStates.Eaten)
-  .to(GhostStates.Paused);
+  .toFrom(GhostStates.Paused);
 
-ghostState.add(GhostStates.Eaten).to(GhostStates.Paused);
+ghostState
+  .add(GhostStates.Eaten)
+  .to(GhostStates.Chasing)
+  .to(GhostStates.Scatter)
+  .toFrom(GhostStates.Paused);
 
 ghostState.add(GhostStates.Paused);
 
@@ -41,6 +45,6 @@ ghostState
   .to(GhostStates.Eaten)
   .to(GhostStates.Paused);
 
-console.log(`Current ghost state = ${ghostState.currentState}`);
+console.log(`Current ghost state = ${ghostState.CurrentState}`);
 
 ghostState.debug();
