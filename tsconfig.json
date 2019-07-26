@@ -5,7 +5,7 @@
     "target": "es2015",
     "outDir": "./dist/",
     "sourceMap": true,
-    "rootDir": "./src",
+    "rootDir": "./",
     "strict": false,
     "preserveConstEnums": true,
     "declaration": true,
