@@ -63,8 +63,21 @@ export namespace Typed {
     to(toState: T): State<T> {
       this.transitions = this.transitions ? this.transitions : [];
 
-      const newTransition = new Transition<T>(toState, this.state);
-      this.transitions.push(newTransition);
+      //
+
+      let exisitingTransition: Transition<T>;
+
+      const isNewTransition = this.transitions.every(
+        (value: Transition<T>, index: Number, array: Transition<T>[]) => {
+          exisitingTransition = value;
+          return value.ToState !== toState;
+        },
+      );
+
+      if (isNewTransition) {
+        const transition = new Transition<T>(toState, this.state);
+        this.transitions.push(transition);
+      }
 
       return this;
     }
