@@ -7,8 +7,11 @@
     "sourceMap": true,
     "rootDir": "./src",
     "strict": false,
-    "plugins": [{
-      "name": "typescript-tslint-plugin"
-    }]
+    "preserveConstEnums": true,
+    "plugins": [
+      {
+        "name": "typescript-tslint-plugin"
+      }
+    ]
   }
 }
