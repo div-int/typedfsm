@@ -115,6 +115,10 @@ export namespace Typed {
       );
     }
 
+    reset() {
+      this._currentState = this.defaultState;
+    }
+
     canChange(changeState: T): boolean {
       return this.isTransition(this.currentState, changeState);
     }

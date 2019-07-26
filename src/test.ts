@@ -12,22 +12,10 @@ const enum GhostStates {
 
 const ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
 
-describe('const ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);', () => {
-  it('Create GhostState FSM', () => {
-    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
-  });
-});
-
 ghostState
   .from(GhostStates.Waiting)
   .to(GhostStates.Chasing)
   .toFrom(GhostStates.Paused);
-
-describe('[Waiting] <==> [Paused]', () => {
-  it('Change state both ways', () => {
-    expect(true);
-  });
-});
 
 ghostState
   .from(GhostStates.Chasing)
@@ -58,16 +46,41 @@ ghostState
   .to(GhostStates.Eaten)
   .to(GhostStates.Paused);
 
-ghostState.OnPreChange = (from: GhostStates, to: GhostStates): boolean => {
-  console.log(`Attempting to change from ${from} to ${to}`);
-  return true;
-};
+describe('const ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);', () => {
+  it('Create GhostState FSM', () => {
+    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+  });
+});
 
-ghostState.OnPostChange = (from: GhostStates, to: GhostStates): boolean => {
-  console.log(`We are going to change from ${from} to ${to}`);
-  return true;
-};
+describe('[Paused] <==> [Waiting] ==> [Chasing]', () => {
+  it('Change state [Waiting] ==> [Paused]', () => {
+    ghostState.change(GhostStates.Paused);
+    expect(ghostState.currentState).to.equal(GhostStates.Paused);
+  });
+  it('Change state [Waiting] <== [Paused]', () => {
+    ghostState.change(GhostStates.Waiting);
+    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+  });
+  it('Change state [Waiting] ==> [Chasing]', () => {
+    ghostState.change(GhostStates.Chasing);
+    expect(ghostState.currentState).to.equal(GhostStates.Chasing);
+  });
+  it("Don't change state [Waiting] ==> [Scatter]", () => {
+    ghostState.reset();
+    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+  });
+});
 
-ghostState.debug();
-console.log(ghostState.change(GhostStates.Eaten));
-console.log(ghostState.change(GhostStates.Scatter));
+// ghostState.OnPreChange = (from: GhostStates, to: GhostStates): boolean => {
+//   console.log(`Attempting to change from ${from} to ${to}`);
+//   return true;
+// };
+
+// ghostState.OnPostChange = (from: GhostStates, to: GhostStates): boolean => {
+//   console.log(`We are going to change from ${from} to ${to}`);
+//   return true;
+// };
+
+// console.log(ghostState.currentState);
+// console.log(ghostState.change(GhostStates.Paused));
+// console.log(ghostState.change(GhostStates.Waiting));
