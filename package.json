@@ -1,5 +1,5 @@
 {
-  "name": "typedfsm",
+  "name": "@div-int/typedfsm",
   "version": "0.0.0",
   "description": "A TypeScript finite state machine library",
   "main": "dist/typedfsm.js",
