@@ -1,7 +1,46 @@
-const world = 'world';
+import { Typed } from './typedfsm';
 
-export function hello(word: string = world): string {
-  return `Hello ${word}! `;
+const enum GhostStates {
+  Waiting,
+  Chasing,
+  Scatter,
+  Frightened,
+  Eaten,
+  Paused,
 }
 
-console.log(hello('you'));
+let ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
+
+ghostState
+  .add(GhostStates.Waiting)
+  .to(GhostStates.Chasing)
+  .toFrom(GhostStates.Paused);
+
+ghostState
+  .add(GhostStates.Chasing)
+  .to(GhostStates.Scatter)
+  .to(GhostStates.Frightened)
+  .to(GhostStates.Paused);
+
+ghostState
+  .add(GhostStates.Scatter)
+  .to(GhostStates.Frightened)
+  .to(GhostStates.Paused);
+
+ghostState
+  .add(GhostStates.Frightened)
+  .to(GhostStates.Eaten)
+  .to(GhostStates.Paused);
+
+ghostState.add(GhostStates.Eaten).to(GhostStates.Paused);
+
+ghostState.add(GhostStates.Paused);
+
+ghostState
+  .add(GhostStates.Frightened)
+  .to(GhostStates.Eaten)
+  .to(GhostStates.Paused);
+
+console.log(`Current ghost state = ${ghostState.currentState}`);
+
+ghostState.debug();
