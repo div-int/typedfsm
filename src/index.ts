@@ -12,36 +12,36 @@ const enum GhostStates {
 const ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
 
 ghostState
-  .add(GhostStates.Waiting)
+  .from(GhostStates.Waiting)
   .to(GhostStates.Chasing)
   .toFrom(GhostStates.Paused);
 
 ghostState
-  .add(GhostStates.Chasing)
+  .from(GhostStates.Chasing)
   .toFrom(GhostStates.Scatter)
   .toFrom(GhostStates.Frightened)
   .toFrom(GhostStates.Paused);
 
 ghostState
-  .add(GhostStates.Scatter)
+  .from(GhostStates.Scatter)
   .toFrom(GhostStates.Frightened)
   .toFrom(GhostStates.Paused);
 
 ghostState
-  .add(GhostStates.Frightened)
+  .from(GhostStates.Frightened)
   .to(GhostStates.Eaten)
   .toFrom(GhostStates.Paused);
 
 ghostState
-  .add(GhostStates.Eaten)
+  .from(GhostStates.Eaten)
   .to(GhostStates.Chasing)
   .to(GhostStates.Scatter)
   .toFrom(GhostStates.Paused);
 
-ghostState.add(GhostStates.Paused);
+ghostState.from(GhostStates.Paused);
 
 ghostState
-  .add(GhostStates.Frightened)
+  .from(GhostStates.Frightened)
   .to(GhostStates.Eaten)
   .to(GhostStates.Paused);
 

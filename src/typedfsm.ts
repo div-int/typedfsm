@@ -83,7 +83,7 @@ export namespace Typed {
     }
 
     from(fromState: T): State<T> {
-      this._fsm.add(fromState).to(this.state);
+      this._fsm.from(fromState).to(this.state);
       return this;
     }
 
@@ -116,7 +116,7 @@ export namespace Typed {
       this._currentState = this._defaultState;
     }
 
-    add(addState: T): State<T> {
+    from(addState: T): State<T> {
       this._states = this._states ? this._states : [];
 
       let exisitingState: State<T>;
