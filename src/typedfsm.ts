@@ -12,13 +12,6 @@ export namespace Typed {
       return this._toState;
     }
 
-    // get Transition(): { fromState: T; toState: T } {
-    //   return {
-    //     fromState: this._fromState,
-    //     toState: this._toState,
-    //   };
-    // }
-
     constructor(fsm: FSM<T>, fromState: T, toState: T) {
       this._fsm = fsm;
       this._fromState = fromState;
@@ -104,7 +97,6 @@ export namespace Typed {
       ) {
         const transition = new Transition<T>(this, fromState, null);
 
-        // this._transitions.push(transition);
         return transition;
       }
 
@@ -114,12 +106,7 @@ export namespace Typed {
     debug() {
       if (this._transitions) {
         this._transitions.map((transition: Transition<T>) => {
-          console.log(
-            transition.fromState,
-            /*transition.fromName,*/
-            ' ---> ',
-            transition.toState,
-          );
+          console.log(transition.fromState, ' ---> ', transition.toState);
         });
       }
     }
