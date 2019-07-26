@@ -1,146 +1,125 @@
 export namespace Typed {
   class Transition<T> {
-    private _toState: T;
+    private _fsm: FSM<T>;
     private _fromState: T;
-
-    get toState() {
-      return this._toState;
-    }
+    private _toState: T;
 
     get fromState() {
       return this._fromState;
     }
 
-    get Transition(): { toState: T; fromState: T } {
-      return {
-        toState: this._toState,
-        fromState: this._fromState,
-      };
+    get toState() {
+      return this._toState;
     }
 
-    constructor(toState: T, fromState: T) {
-      this._toState = toState;
-      this._fromState = fromState;
-    }
-  }
+    // get Transition(): { fromState: T; toState: T } {
+    //   return {
+    //     fromState: this._fromState,
+    //     toState: this._toState,
+    //   };
+    // }
 
-  class State<T> {
-    private _fsm: FSM<T>;
-    private _state: T;
-    private _transitions: Transition<T>[];
-
-    get state(): T {
-      return this._state;
-    }
-
-    get toStates(): T[] {
-      if (this._transitions) {
-        return [
-          ...this._transitions.map((transition: Transition<T>) => {
-            return transition.toState;
-          }),
-        ];
-      }
-      return [];
-    }
-
-    get fromStates(): T[] {
-      if (this._transitions) {
-        return [
-          ...this._transitions.map((transition: Transition<T>) => {
-            return transition.fromState;
-          }),
-        ];
-      }
-      return [];
-    }
-
-    constructor(fsm: FSM<T>, state: T) {
+    constructor(fsm: FSM<T>, fromState: T, toState: T) {
       this._fsm = fsm;
-      this._state = state;
+      this._fromState = fromState;
+      this._toState = toState;
     }
 
-    to(toState: T): State<T> {
-      this._transitions = this._transitions ? this._transitions : [];
+    to(toState: T, transitionName?: string): Transition<T> {
+      if (this._fsm.isTransition(this.fromState, toState)) return this;
 
-      //
+      if (this._toState === null) {
+        this._toState = toState;
+        this._fsm.transitions.push(this);
+        return this;
+      }
 
-      let exisitingTransition: Transition<T>;
-
-      const isNewTransition = this._transitions.every(
-        (value: Transition<T>, index: Number, array: Transition<T>[]) => {
-          exisitingTransition = value;
-          return value.toState !== toState;
-        },
-      );
-
-      if (isNewTransition) {
-        const transition = new Transition<T>(toState, this.state);
-        this._transitions.push(transition);
+      if (!this._fsm.isTransition(this.fromState, toState)) {
+        this._fsm.from(this.fromState).to(toState);
       }
 
       return this;
     }
 
-    from(fromState: T): State<T> {
-      this._fsm.from(fromState).to(this.state);
-      return this;
-    }
+    toFrom(toFromState: T, transitionName?: string): Transition<T> {
+      if (this._fsm.isTransition(this.fromState, toFromState)) return this;
 
-    toFrom(toFromState: T): State<T> {
-      this.to(toFromState);
-      this.from(toFromState);
+      if (this._toState === null) {
+        this._toState = toFromState;
+      }
+
+      if (!this._fsm.isTransition(toFromState, this.fromState)) {
+        this._fsm.from(toFromState, transitionName).to(this.fromState);
+      }
+      if (!this._fsm.isTransition(this.fromState, toFromState)) {
+        this._fsm.from(this.fromState).to(toFromState);
+      }
+
       return this;
     }
   }
 
   export class FSM<T> {
-    private _defaultState: State<T>;
-    private _currentState: State<T>;
-    private _states: State<T>[];
-
-    get states(): State<T>[] {
-      return this._states;
-    }
+    private _defaultState: T;
+    private _currentState: T;
+    private _transitions: Transition<T>[];
 
     get defaultState(): T {
-      return this._defaultState.state;
+      return this._defaultState;
     }
 
     get currentState(): T {
-      return this._currentState.state;
+      return this._currentState;
+    }
+
+    get transitions(): Transition<T>[] {
+      return this._transitions;
     }
 
     constructor(defaultState: T) {
-      this._defaultState = new State(this, defaultState);
-      this._currentState = this._defaultState;
+      this._defaultState = defaultState;
+      this._currentState = defaultState;
     }
 
-    from(addState: T): State<T> {
-      this._states = this._states ? this._states : [];
-
-      let exisitingState: State<T>;
-
-      const isNewState = this._states.every(
-        (value: State<T>, index: Number, array: State<T>[]) => {
-          exisitingState = value;
-          return value.state !== addState;
+    isTransition(fromState: T, toState: T): boolean {
+      return !this._transitions.every(
+        (value: Transition<T>, index: Number, array: Transition<T>[]) => {
+          return !(value.fromState === fromState && value.toState === toState);
         },
       );
+    }
 
-      if (isNewState) {
-        const state = new State<T>(this, addState);
-        this._states.push(state);
-        return state;
+    from(fromState: T, transitionName?: string): Transition<T> {
+      this._transitions = this._transitions ? this._transitions : [];
+
+      let exisitingTransition: Transition<T>;
+
+      if (
+        this._transitions.every(
+          (value: Transition<T>, index: Number, array: Transition<T>[]) => {
+            exisitingTransition = value;
+            return !(value.fromState === fromState && value.toState === null);
+          },
+        )
+      ) {
+        const transition = new Transition<T>(this, fromState, null);
+
+        // this._transitions.push(transition);
+        return transition;
       }
 
-      return exisitingState;
+      return exisitingTransition;
     }
 
     debug() {
-      if (this._states) {
-        this._states.map((state: State<T>) => {
-          console.log(state.state, ' ---> ', state.toStates);
+      if (this._transitions) {
+        this._transitions.map((transition: Transition<T>) => {
+          console.log(
+            transition.fromState,
+            /*transition.fromName,*/
+            ' ---> ',
+            transition.toState,
+          );
         });
       }
     }
