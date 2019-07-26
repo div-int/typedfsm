@@ -45,6 +45,6 @@ ghostState
   .to(GhostStates.Eaten)
   .to(GhostStates.Paused);
 
-console.log(`Current ghost state = ${ghostState.CurrentState}`);
+console.log(`Current ghost state = ${ghostState.currentState}`);
 
 ghostState.debug();
