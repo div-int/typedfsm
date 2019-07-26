@@ -1,10 +1,10 @@
 export namespace Typed {
   class Transition<T> {
-    private toState: T;
+    private _toState: T;
     private fromState: T;
 
     get ToState() {
-      return this.toState;
+      return this._toState;
     }
 
     get FromState() {
