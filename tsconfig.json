@@ -8,10 +8,9 @@
     "rootDir": "./src",
     "strict": false,
     "preserveConstEnums": true,
-    "plugins": [
-      {
-        "name": "typescript-tslint-plugin"
-      }
-    ]
+    "declaration": true,
+    "plugins": [{
+      "name": "typescript-tslint-plugin"
+    }]
   }
 }
