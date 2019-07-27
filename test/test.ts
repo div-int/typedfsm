@@ -65,6 +65,10 @@ describe('ghostState\n\t.from()\n\t.to()\n\t.toFrom();', () => {
     ghostState.change(GhostStates.Waiting);
     expect(ghostState.currentState).to.equal(GhostStates.Waiting);
   });
+  it('ghostState.change(GhostStates.Waiting) === GhostStates.Waiting)', () => {
+    ghostState.change(GhostStates.Waiting);
+    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+  });
   it('ghostState.change(GhostStates.Chasing) === GhostStates.Chasing', () => {
     ghostState.change(GhostStates.Chasing);
     expect(ghostState.currentState).to.equal(GhostStates.Chasing);
