@@ -56,7 +56,7 @@ ghostState
   .to(GhostStates.Chasing)
   .toFrom(GhostStates.Paused);
 
-describe('ghostState\n\t.from(GhostStates.Waiting)\n\t.to(GhostStates.Chasing)\n\t.toFrom(GhostStates.Paused);', () => {
+describe('ghostState\n\t.from()\n\t.to()\n\t.toFrom();', () => {
   it('ghostState.change(GhostStates.Paused) === GhostStates.Paused', () => {
     ghostState.change(GhostStates.Paused);
     expect(ghostState.currentState).to.equal(GhostStates.Paused);
