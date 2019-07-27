@@ -166,15 +166,5 @@ export namespace Typed {
 
       return exisitingTransition;
     }
-
-    debug() {
-      console.log(this.currentState);
-
-      if (this._transitions) {
-        this._transitions.map((transition: Transition<T>) => {
-          console.log(transition.fromState, ' ---> ', transition.toState);
-        });
-      }
-    }
   }
 }
