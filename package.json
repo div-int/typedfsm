@@ -10,7 +10,7 @@
     "watch": "npx tsc -w",
     "build": "npx tsc",
     "test": "mocha -r ts-node/register test/**/*.ts",
-    "coverage": "nyc --reporter=lcov mocha -r ts-node/register test/**/*.ts && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+    "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
   },
   "nyc": {
     "extension": [
