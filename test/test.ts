@@ -42,21 +42,25 @@ const enum GhostStates {
 //   .to(GhostStates.Paused);
 
 let ghostState: Typed.FSM<GhostStates>;
-
-ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
+let resultOnPreChange: string;
+let resultOnPostChange: string;
 
 describe('ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting)', () => {
+  ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
+  console.log(ghostState.currentState);
+
   it('ghostState.currentState === GhostStates.Waiting', () => {
+    console.log(ghostState.currentState);
     expect(ghostState.currentState).to.equal(GhostStates.Waiting);
   });
 });
 
-ghostState
-  .from(GhostStates.Waiting)
-  .to(GhostStates.Chasing)
-  .toFrom(GhostStates.Paused);
-
 describe('ghostState\n\t.from()\n\t.to()\n\t.toFrom();', () => {
+  ghostState
+    .from(GhostStates.Waiting)
+    .to(GhostStates.Chasing)
+    .toFrom(GhostStates.Paused);
+
   it('ghostState.change(GhostStates.Paused) === GhostStates.Paused', () => {
     ghostState.change(GhostStates.Paused);
     expect(ghostState.currentState).to.equal(GhostStates.Paused);
@@ -83,15 +87,29 @@ describe('ghostState\n\t.from()\n\t.to()\n\t.toFrom();', () => {
   });
 });
 
-// ghostState.OnPreChange = (from: GhostStates, to: GhostStates): boolean => {
-//   console.log(`Attempting to change from ${from} to ${to}`);
-//   return true;
-// };
+describe('ghostState.OnPreChange = (from: GhostStates, to: GhostStates)', () => {
+  ghostState.OnPreChange = (from: GhostStates, to: GhostStates): boolean => {
+    resultOnPreChange = `${from} ===> ${to}`;
+    return true;
+  };
 
-// ghostState.OnPostChange = (from: GhostStates, to: GhostStates): boolean => {
-//   console.log(`We are going to change from ${from} to ${to}`);
-//   return true;
-// };
+  it('resultOnPreChange === "Waiting ===> Chasing"', () => {
+    expect(resultOnPreChange).to.equal('Waiting ===> Chasing');
+  });
+});
+
+describe('ghostState.OnPostChange = (from: GhostStates, to: GhostStates)', () => {
+  ghostState.OnPostChange = (from: GhostStates, to: GhostStates): boolean => {
+    resultOnPostChange = `${from} ===> ${to}`;
+    return true;
+  };
+
+  it('resultOnPostChange === "Waiting ===> Chasing"', () => {
+    expect(resultOnPostChange).to.equal('Waiting ===> Chasing');
+  });
+});
+
+console.log(ghostState.currentState);
 
 // console.log(ghostState.currentState);
 // console.log(ghostState.change(GhostStates.Paused));
