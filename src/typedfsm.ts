@@ -122,6 +122,14 @@ export namespace Typed {
       );
     }
 
+    isAction(fromState: T, action: K): boolean {
+      return !this._transitions.every(
+        (value: Transition<T, K>, index: Number, array: Transition<T, K>[]) => {
+          return !(value.fromState === fromState && value.action === action);
+        },
+      );
+    }
+
     reset() {
       this._currentState = this.defaultState;
     }
@@ -150,6 +158,16 @@ export namespace Typed {
 
       return new Error(
         `Can't change from ${this.currentState} to ${changeState}`,
+      );
+    }
+
+    canDo(action: K): boolean {
+      return this.isAction(this.currentState, action);
+    }
+
+    do(action: K): T | Error {
+      return new Error(
+        `Can't perform action ${action} in state ${this.currentState}`,
       );
     }
 

@@ -67,8 +67,9 @@ describe('ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting)', () => {
 describe('ghostState\n\t.from()\n\t.to()\n\t.toFrom();', () => {
   ghostState
     .from(GhostStates.Waiting)
-    .to(GhostStates.Chasing)
-    .toFrom(GhostStates.Paused);
+    .to(GhostStates.Chasing, GhostActions.Chase)
+    .toFrom(GhostStates.Paused),
+    GhostActions.Pause;
 
   it('ghostState.change(GhostStates.Paused) === GhostStates.Paused', () => {
     ghostState.change(GhostStates.Paused);
