@@ -10,6 +10,15 @@ const enum GhostStates {
   Paused = 'Paused',
 }
 
+const enum GhostActions {
+  Reset,
+  Chase,
+  Scatter,
+  Frighten,
+  Eat,
+  Pause,
+}
+
 // const ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
 
 // ghostState
@@ -41,12 +50,12 @@ const enum GhostStates {
 //   .to(GhostStates.Eaten)
 //   .to(GhostStates.Paused);
 
-let ghostState: Typed.FSM<GhostStates>;
+let ghostState: Typed.FSM<GhostStates, GhostActions>;
 let resultOnPreChange: string;
 let resultOnPostChange: string;
 
 describe('ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting)', () => {
-  ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
+  ghostState = new Typed.FSM<GhostStates, GhostActions>(GhostStates.Waiting);
   console.log(ghostState.currentState);
 
   it('ghostState.currentState === GhostStates.Waiting', () => {

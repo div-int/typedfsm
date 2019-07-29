@@ -1,8 +1,9 @@
 export namespace Typed {
-  class Transition<T> {
-    private _fsm: FSM<T>;
+  class Transition<T, K> {
+    private _fsm: FSM<T, K>;
     private _fromState: T;
     private _toState: T;
+    private _action: K;
 
     get fromState() {
       return this._fromState;
@@ -12,17 +13,23 @@ export namespace Typed {
       return this._toState;
     }
 
-    constructor(fsm: FSM<T>, fromState: T, toState: T) {
+    get action() {
+      return this._action;
+    }
+
+    constructor(fsm: FSM<T, K>, fromState: T, toState: T, action?: K) {
       this._fsm = fsm;
       this._fromState = fromState;
       this._toState = toState;
+      this._action = action;
     }
 
-    to(toState: T, transitionName?: string): Transition<T> {
+    to(toState: T, action?: K): Transition<T, K> {
       if (this._fsm.isTransition(this.fromState, toState)) return this;
 
       if (this._toState === null) {
         this._toState = toState;
+        this._action = action;
         this._fsm.transitions.push(this);
         return this;
       }
@@ -34,7 +41,7 @@ export namespace Typed {
       return this;
     }
 
-    toFrom(toFromState: T, transitionName?: string): Transition<T> {
+    toFrom(toFromState: T, toAction?: K, fromAction?: K): Transition<T, K> {
       if (this._fsm.isTransition(this.fromState, toFromState)) return this;
 
       if (this._toState === null) {
@@ -42,10 +49,10 @@ export namespace Typed {
       }
 
       if (!this._fsm.isTransition(toFromState, this.fromState)) {
-        this._fsm.from(toFromState, transitionName).to(this.fromState);
+        this._fsm.from(toFromState).to(this.fromState, fromAction);
       }
       if (!this._fsm.isTransition(this.fromState, toFromState)) {
-        this._fsm.from(this.fromState).to(toFromState);
+        this._fsm.from(this.fromState).to(toFromState, toAction);
       }
 
       return this;
@@ -65,10 +72,10 @@ export namespace Typed {
   export interface OnLeave<T> {
     (from: T, to: T): boolean;
   }
-  export class FSM<T> {
+  export class FSM<T, K> {
     private _defaultState: T;
     private _currentState: T;
-    private _transitions: Transition<T>[];
+    private _transitions: Transition<T, K>[];
     private _onPreChange: OnPreChange<T>;
     private _onPostChange: OnPostChange<T>;
     private _onEnterState: OnEnter<T>;
@@ -82,7 +89,7 @@ export namespace Typed {
       return this._currentState;
     }
 
-    get transitions(): Transition<T>[] {
+    get transitions(): Transition<T, K>[] {
       return this._transitions;
     }
 
@@ -109,7 +116,7 @@ export namespace Typed {
 
     isTransition(fromState: T, toState: T): boolean {
       return !this._transitions.every(
-        (value: Transition<T>, index: Number, array: Transition<T>[]) => {
+        (value: Transition<T, K>, index: Number, array: Transition<T, K>[]) => {
           return !(value.fromState === fromState && value.toState === toState);
         },
       );
@@ -146,20 +153,24 @@ export namespace Typed {
       );
     }
 
-    from(fromState: T, transitionName?: string): Transition<T> {
+    from(fromState: T): Transition<T, K> {
       this._transitions = this._transitions ? this._transitions : [];
 
-      let exisitingTransition: Transition<T>;
+      let exisitingTransition: Transition<T, K>;
 
       if (
         this._transitions.every(
-          (value: Transition<T>, index: Number, array: Transition<T>[]) => {
+          (
+            value: Transition<T, K>,
+            index: Number,
+            array: Transition<T, K>[],
+          ) => {
             exisitingTransition = value;
             return !(value.fromState === fromState && value.toState === null);
           },
         )
       ) {
-        const transition = new Transition<T>(this, fromState, null);
+        const transition = new Transition<T, K>(this, fromState, null);
 
         return transition;
       }
