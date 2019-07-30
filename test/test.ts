@@ -35,9 +35,14 @@ describe('Create ghost states and actions.', () => {
   ghostState
     .from(GhostStates.Waiting, GhostActions.Wait)
     .to(GhostStates.Chasing, GhostActions.Chase)
+    .to(GhostStates.Chasing, GhostActions.Chase)
     .to(GhostStates.Scatter, GhostActions.Scatter)
     .toFrom(GhostStates.Paused, GhostActions.Pause);
 
+  ghostState
+    .from(GhostStates.Waiting, GhostActions.Wait)
+    .toFrom(GhostStates.Paused, GhostActions.Pause);
+  
   ghostState
     .from(GhostStates.Chasing, GhostActions.Chase)
     .toFrom(GhostStates.Scatter, GhostActions.Scatter)
@@ -109,8 +114,39 @@ describe('Create ghost states and actions.', () => {
 let resultOnPostChange: string;
 
 describe('Create on pre change state callback.', () => {
+   // tslint:disable-next-line: ter-arrow-parens
+  it('Should be same state if we cancel it? (change)', () => {
+    ghostState.OnPreChange = (
+      from: GhostStates,
+      to: GhostStates,
+      action: GhostActions,
+    ): boolean => {
+      return false;
+    };
+
+    ghostState.reset();
+    ghostState.change(GhostStates.Chasing);
+    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+    // done();
+  });
+
   // tslint:disable-next-line: ter-arrow-parens
-  it('Should be same state if we cancel it?', () => {
+  it("Should be chasing if we don't cancel it? (change)", () => {
+    ghostState.OnPreChange = (
+      from: GhostStates,
+      to: GhostStates,
+      action: GhostActions,
+    ): boolean => {
+      return true;
+    };
+
+    ghostState.reset();
+    ghostState.change(GhostStates.Chasing);
+    expect(ghostState.currentState).to.equal(GhostStates.Chasing);
+    // done();
+  });
+ // tslint:disable-next-line: ter-arrow-parens
+  it('Should be same state if we cancel it? (do)', () => {
     ghostState.OnPreChange = (
       from: GhostStates,
       to: GhostStates,
@@ -126,7 +162,7 @@ describe('Create on pre change state callback.', () => {
   });
 
   // tslint:disable-next-line: ter-arrow-parens
-  it("Should be chasing if we don't cancel it?", () => {
+  it("Should be chasing if we don't cancel it? (do)", () => {
     ghostState.OnPreChange = (
       from: GhostStates,
       to: GhostStates,
@@ -144,7 +180,21 @@ describe('Create on pre change state callback.', () => {
 
 describe('Create on post change state callback.', () => {
   // tslint:disable-next-line: ter-arrow-parens
-  it('Should be scatter after callback?', done => {
+  it('Should be scatter after callback? (change)', done => {
+    ghostState.OnPostChange = (
+      from: GhostStates,
+      to: GhostStates,
+      action: GhostActions,
+    ): void => {
+      resultOnPostChange = `${from} ===> ${to} do ${action}`;
+    };
+
+    ghostState.reset();
+    ghostState.change(GhostStates.Scatter);
+    expect(ghostState.currentState).to.equal(GhostStates.Scatter);
+    done();
+  });
+ it('Should be scatter after callback? (do)', done => {
     ghostState.OnPostChange = (
       from: GhostStates,
       to: GhostStates,
