@@ -82,6 +82,10 @@ describe('Create ghost states and actions.', () => {
     ghostState.change(GhostStates.Chasing);
     expect(ghostState.currentState).to.equal(GhostStates.Chasing);
   });
+  it('Can change state back to paused?', () => {
+    ghostState.change(GhostStates.Paused);
+    expect(ghostState.currentState).to.equal(GhostStates.Paused);
+  });
 
   it('Can perform action pause?', () => {
     ghostState.reset();

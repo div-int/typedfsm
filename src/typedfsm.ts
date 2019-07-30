@@ -64,23 +64,21 @@ export namespace Typed {
     }
 
     toFrom(toFromState: T, toAction?: K): Transition<T, K> {
-      if (this._fsm.isTransition(this.fromState, toFromState)) {
-        return this;
-      }
-
-      if (this._toState === null) {
-        this._toState = toFromState;
-      }
-
-      if (!this._fsm.isTransition(toFromState, this.fromState)) {
-        this._fsm
-          .from(toFromState, toAction)
-          .to(this.fromState, this.fromAction);
-      }
       if (!this._fsm.isTransition(this.fromState, toFromState)) {
-        this._fsm
-          .from(this.fromState, this.fromAction)
-          .to(toFromState, toAction);
+        if (this._toState === null) {
+          this._toState = toFromState;
+        }
+
+        if (!this._fsm.isTransition(toFromState, this.fromState)) {
+          this._fsm
+            .from(toFromState, toAction)
+            .to(this.fromState, this.fromAction);
+        }
+        if (!this._fsm.isTransition(this.fromState, toFromState)) {
+          this._fsm
+            .from(this.fromState, this.fromAction)
+            .to(toFromState, toAction);
+        }
       }
 
       return this;
