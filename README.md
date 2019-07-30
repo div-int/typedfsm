@@ -8,7 +8,8 @@ A TypeScript Finite State Machine library.
 
 ## Example
 
-First create an enum with the states. It can have text values
+First create an enum with the states and possible actions on those states.
+It can have text values:
 
 ```typescript
 const enum GhostStates {
@@ -19,9 +20,18 @@ const enum GhostStates {
   Eaten = 'Eaten',
   Paused = 'Paused',
 }
+
+const enum GhostActions {
+  Wait = 'Wait',
+  Chase = 'Chase',
+  Scatter = 'Scatter',
+  Frighten = 'Frighten',
+  Eat = 'Eat',
+  Pause = 'Pause',
+}
 ```
 
-or just a plain numeric enum.
+or just a plain numeric enum:
 
 ```typescript
 const enum GhostStates {
@@ -31,6 +41,15 @@ const enum GhostStates {
   Frightened,
   Eaten,
   Paused,
+}
+
+const enum GhostActions {
+  Wait,
+  Chase,
+  Scatter,
+  Frighten,
+  Eat,
+  Pause,
 }
 ```
 
@@ -46,7 +65,20 @@ Next we call the `toFrom()` method which will create a transition rule to allow 
 
 ```typescript
 ghostState
-  .from(GhostStates.Waiting)
-  .to(GhostStates.Chasing)
-  .toFrom(GhostStates.Paused);
+  .from(GhostStates.Waiting, GhostActions.Wait)
+    .to(GhostStates.Chasing, GhostActions.Chase)
+    .to(GhostStates.Scatter, GhostActions.Scatter)
+    .toFrom(GhostStates.Paused, GhostActions.Pause);
+```
+
+To change the state of the finite state machine we can either specify the new state to change to:
+
+```typescript
+ghostState.change(GhostStates.Chasing);
+```
+
+Or tell it an action to perform:
+
+```typescript
+ghostState.do(GhostActions.Chase);
 ```
