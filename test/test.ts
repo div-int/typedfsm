@@ -42,7 +42,7 @@ describe('Create ghost states and actions.', () => {
   ghostState
     .from(GhostStates.Waiting, GhostActions.Wait)
     .toFrom(GhostStates.Paused, GhostActions.Pause);
-  
+
   ghostState
     .from(GhostStates.Chasing, GhostActions.Chase)
     .toFrom(GhostStates.Scatter, GhostActions.Scatter)
@@ -194,7 +194,8 @@ describe('Create on post change state callback.', () => {
     expect(ghostState.currentState).to.equal(GhostStates.Scatter);
     done();
   });
- it('Should be scatter after callback? (do)', done => {
+  // tslint:disable-next-line: ter-arrow-parens
+  it('Should be scatter after callback? (do)', done => {
     ghostState.OnPostChange = (
       from: GhostStates,
       to: GhostStates,
