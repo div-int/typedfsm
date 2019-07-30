@@ -40,10 +40,6 @@ describe('Create ghost states and actions.', () => {
     .toFrom(GhostStates.Paused, GhostActions.Pause);
 
   ghostState
-    .from(GhostStates.Waiting, GhostActions.Wait)
-    .toFrom(GhostStates.Paused, GhostActions.Pause);
-
-  ghostState
     .from(GhostStates.Chasing, GhostActions.Chase)
     .toFrom(GhostStates.Scatter, GhostActions.Scatter)
     .toFrom(GhostStates.Frightened, GhostActions.Frighten)
