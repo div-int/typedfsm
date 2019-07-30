@@ -19,13 +19,15 @@ const enum GhostActions {
   Pause = 'Pause',
 }
 
-let ghostState: Typed.FSM<GhostStates, GhostActions>;
+const ghostState = new Typed.FSM<GhostStates, GhostActions>(
+  GhostStates.Waiting,
+);
 
 describe('Create ghost state machine with default state of waiting.', () => {
-  ghostState = new Typed.FSM<GhostStates, GhostActions>(GhostStates.Waiting);
-
   it('Is current state waiting?', () => {
+    ghostState.reset();
     expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+    // done();
   });
 });
 
@@ -104,43 +106,56 @@ describe('Create ghost states and actions.', () => {
   });
 });
 
-let resultOnPreChange: string;
 let resultOnPostChange: string;
 
 describe('Create on pre change state callback.', () => {
   // tslint:disable-next-line: ter-arrow-parens
-  it('Before doing action chase from waiting.', done => {
+  it('Should be same state if we cancel it?', () => {
     ghostState.OnPreChange = (
       from: GhostStates,
       to: GhostStates,
       action: GhostActions,
     ): boolean => {
-      resultOnPreChange = `${from} do ${action}`;
+      return false;
+    };
+
+    ghostState.reset();
+    ghostState.do(GhostActions.Chase);
+    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+    // done();
+  });
+
+  // tslint:disable-next-line: ter-arrow-parens
+  it("Should be chasing if we don't cancel it?", () => {
+    ghostState.OnPreChange = (
+      from: GhostStates,
+      to: GhostStates,
+      action: GhostActions,
+    ): boolean => {
       return true;
     };
 
     ghostState.reset();
     ghostState.do(GhostActions.Chase);
-    expect(resultOnPreChange).to.equal('Waiting do Chase');
-    done();
+    expect(ghostState.currentState).to.equal(GhostStates.Chasing);
+    // done();
   });
 });
 
 describe('Create on post change state callback.', () => {
   // tslint:disable-next-line: ter-arrow-parens
-  it('After doing action pause from waiting.', done => {
+  it('Should be scatter after callback?', done => {
     ghostState.OnPostChange = (
       from: GhostStates,
       to: GhostStates,
       action: GhostActions,
     ): void => {
       resultOnPostChange = `${from} ===> ${to} do ${action}`;
-      console.log(resultOnPostChange);
     };
 
     ghostState.reset();
     ghostState.do(GhostActions.Scatter);
-    expect(resultOnPostChange).to.equal('Waiting ===> Scatter do Scatter');
+    expect(ghostState.currentState).to.equal(GhostStates.Scatter);
     done();
   });
 });

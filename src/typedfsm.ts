@@ -219,6 +219,7 @@ export namespace Typed {
       if (this._onPreChange) {
         if (!this._onPreChange(this.currentState, undefined, doAction)) {
           return this.currentState;
+          console.log('Current state!');
         }
       }
 
