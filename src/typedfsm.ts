@@ -155,7 +155,7 @@ export namespace Typed {
     }
 
     isTransition(fromState: T, toState: T): boolean {
-      return this.findTransition(fromState, toState) !== undefined;
+      return !(this.findTransition(fromState, toState) == null);
     }
 
     findAction(fromState: T, toAction: K): Transition<T, K> {
@@ -176,7 +176,7 @@ export namespace Typed {
     }
 
     isAction(fromState: T, toAction: K): boolean {
-      return this.findAction(fromState, toAction) !== undefined;
+      return !(this.findAction(fromState, toAction) == null);
     }
 
     canChange(changeState: T): boolean {
@@ -219,7 +219,6 @@ export namespace Typed {
       if (this._onPreChange) {
         if (!this._onPreChange(this.currentState, undefined, doAction)) {
           return this.currentState;
-          console.log('Current state!');
         }
       }
 
