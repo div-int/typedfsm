@@ -1,49 +1,75 @@
 export namespace Typed {
+  export interface OnPreChange<T, K> {
+    (from: T, to: T, action: K): boolean;
+  }
+
+  export interface OnPostChange<T, K> {
+    (from: T, to: T, action: K): void;
+  }
+
+  export interface OnEnter<T> {
+    (from: T, to: T): boolean;
+  }
+
+  export interface OnLeave<T> {
+    (from: T, to: T): boolean;
+  }
+
   class Transition<T, K> {
     private _fsm: FSM<T, K>;
     private _fromState: T;
+    private _fromAction: K;
     private _toState: T;
-    private _action: K;
+    private _toAction: K;
 
     get fromState() {
       return this._fromState;
+    }
+
+    get fromAction() {
+      return this._fromAction;
     }
 
     get toState() {
       return this._toState;
     }
 
-    get action() {
-      return this._action;
+    get toAction() {
+      return this._toAction;
     }
 
-    constructor(fsm: FSM<T, K>, fromState: T, toState: T, action?: K) {
+    constructor(
+      fsm: FSM<T, K>,
+      fromState: T,
+      fromAction: K,
+      toState: T,
+      toAction?: K,
+    ) {
       this._fsm = fsm;
       this._fromState = fromState;
+      this._fromAction = fromAction;
       this._toState = toState;
-      this._action = action;
+      this._toAction = toAction;
     }
 
-    to(toState: T, action?: K): Transition<T, K> {
-      console.log(this.fromState, toState, action);
+    to(toState: T, toAction?: K): Transition<T, K> {
       if (this._fsm.isTransition(this.fromState, toState)) return this;
 
       if (this._toState === null) {
         this._toState = toState;
-        this._action = action;
+        this._toAction = toAction;
         this._fsm.transitions.push(this);
         return this;
       }
 
       if (!this._fsm.isTransition(this.fromState, toState)) {
-        this._fsm.from(this.fromState).to(toState, action);
+        this._fsm.from(this.fromState, this.fromAction).to(toState, toAction);
       }
 
       return this;
     }
 
-    toFrom(toFromState: T, toAction?: K, fromAction?: K): Transition<T, K> {
-      console.log(this.fromState, toFromState, toAction, fromAction);
+    toFrom(toFromState: T, toAction?: K): Transition<T, K> {
       if (this._fsm.isTransition(this.fromState, toFromState)) return this;
 
       if (this._toState === null) {
@@ -51,29 +77,20 @@ export namespace Typed {
       }
 
       if (!this._fsm.isTransition(toFromState, this.fromState)) {
-        this._fsm.from(toFromState).to(this.fromState, fromAction);
+        this._fsm
+          .from(toFromState, toAction)
+          .to(this.fromState, this.fromAction);
       }
       if (!this._fsm.isTransition(this.fromState, toFromState)) {
-        this._fsm.from(this.fromState).to(toFromState, toAction);
+        this._fsm
+          .from(this.fromState, this.fromAction)
+          .to(toFromState, toAction);
       }
 
       return this;
     }
   }
 
-  export interface OnPreChange<T, K> {
-    (from: T, to: T, action: K): boolean;
-  }
-
-  export interface OnPostChange<T, K> {
-    (from: T, to: T, action: K): boolean;
-  }
-  export interface OnEnter<T> {
-    (from: T, to: T): boolean;
-  }
-  export interface OnLeave<T> {
-    (from: T, to: T): boolean;
-  }
   export class FSM<T, K> {
     private _defaultState: T;
     private _currentState: T;
@@ -116,37 +133,50 @@ export namespace Typed {
       this._currentState = defaultState;
     }
 
-    isTransition(fromState: T, toState: T): boolean {
-      return !this._transitions.every(
-        (value: Transition<T, K>, index: Number, array: Transition<T, K>[]) => {
-          return !(value.fromState === fromState && value.toState === toState);
-        },
-      );
+    reset() {
+      this._currentState = this.defaultState;
     }
 
-    findAction(fromState: T, action: K): Transition<T, K> {
+    findTransition(fromState: T, toState: T): Transition<T, K> {
       let result: Transition<T, K>;
 
       this._transitions.every(
         (value: Transition<T, K>, index: Number, array: Transition<T, K>[]) => {
-          console.log('findAction() : ',value.fromState, value.toState, value.action);
-          if (value.fromState === fromState && value.action === action) {
-	    result = value;
+          if (value.fromState === fromState && value.toState === toState) {
+            result = value;
             return false;
           }
-	  return true;
+
+          return true;
         },
       );
 
       return result;
     }
 
-    isAction(fromState: T, action: K): boolean {
-      return this.findAction(fromState, action) !== undefined;
+    isTransition(fromState: T, toState: T): boolean {
+      return this.findTransition(fromState, toState) !== undefined;
     }
 
-    reset() {
-      this._currentState = this.defaultState;
+    findAction(fromState: T, toAction: K): Transition<T, K> {
+      let result: Transition<T, K>;
+
+      this._transitions.every(
+        (value: Transition<T, K>, index: Number, array: Transition<T, K>[]) => {
+          if (value.fromState === fromState && value.toAction === toAction) {
+            result = value;
+            return false;
+          }
+
+          return true;
+        },
+      );
+
+      return result;
+    }
+
+    isAction(fromState: T, toAction: K): boolean {
+      return this.findAction(fromState, toAction) !== undefined;
     }
 
     canChange(changeState: T): boolean {
@@ -159,13 +189,18 @@ export namespace Typed {
           return this.currentState;
         }
       }
-      if (this.canChange(changeState)) {
-        if (this._onPostChange) {
-          if (this._onPostChange(this.currentState, changeState, undefined)) {
-            return (this._currentState = changeState);
-          }
 
-          return this._currentState;
+      let foundTransition: Transition<T, K>;
+
+      if (
+        (foundTransition = this.findTransition(this.currentState, changeState))
+      ) {
+        if (this._onPostChange) {
+          this._onPostChange(
+            this.currentState,
+            changeState,
+            foundTransition.toAction,
+          );
         }
 
         return (this._currentState = changeState);
@@ -189,24 +224,20 @@ export namespace Typed {
 
       let foundAction: Transition<T, K>;
 
-      if (foundAction = this.findAction(this.currentState, doAction)) {
+      if ((foundAction = this.findAction(this.currentState, doAction))) {
         if (this._onPostChange) {
-          if (this._onPostChange(this.currentState, foundAction.toState, doAction)) {
-            return (this._currentState = foundAction.toState);
-          }
-
-          return this._currentState;
+          this._onPostChange(this.currentState, foundAction.toState, doAction);
         }
-        
-	return (this._currentState = foundAction.toState);
-       );
+
+        return (this._currentState = foundAction.toState);
       }
-   return new Error(
-          `Can't perform action ${doAction} with state ${this.currentState}`,
-      
+
+      return new Error(
+        `Can't perform action ${doAction} with state ${this.currentState}`,
+      );
     }
 
-    from(fromState: T): Transition<T, K> {
+    from(fromState: T, fromAction?: K): Transition<T, K> {
       this._transitions = this._transitions ? this._transitions : [];
 
       let exisitingTransition: Transition<T, K>;
@@ -223,7 +254,12 @@ export namespace Typed {
           },
         )
       ) {
-        const transition = new Transition<T, K>(this, fromState, null);
+        const transition = new Transition<T, K>(
+          this,
+          fromState,
+          fromAction,
+          null,
+        );
 
         return transition;
       }

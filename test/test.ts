@@ -12,7 +12,7 @@ const enum GhostStates {
 
 const enum GhostActions {
   Wait = 'Wait',
-  Chase= 'Chase',
+  Chase = 'Chase',
   Scatter = 'Scatter',
   Frighten = 'Frighten',
   Eat = 'Eat',
@@ -20,23 +20,44 @@ const enum GhostActions {
 }
 
 let ghostState: Typed.FSM<GhostStates, GhostActions>;
-let resultOnPreChange: string;
-let resultOnPostChange: string;
 
-describe('Create ghost state with default state of waiting.', () => {
+describe('Create ghost state machine with default state of waiting.', () => {
   ghostState = new Typed.FSM<GhostStates, GhostActions>(GhostStates.Waiting);
 
-  it('Is current state waiting?', (done) => {
+  it('Is current state waiting?', () => {
     expect(ghostState.currentState).to.equal(GhostStates.Waiting);
-    done();
   });
 });
 
-describe('Create state of waiting going to chasing and to/from paused.', () => {
+describe('Create ghost states and actions.', () => {
   ghostState
-    .from(GhostStates.Waiting)
+    .from(GhostStates.Waiting, GhostActions.Wait)
     .to(GhostStates.Chasing, GhostActions.Chase)
-    .toFrom(GhostStates.Paused, GhostActions.Pause, GhostActions.Wait);
+    .to(GhostStates.Scatter, GhostActions.Scatter)
+    .toFrom(GhostStates.Paused, GhostActions.Pause);
+
+  ghostState
+    .from(GhostStates.Chasing, GhostActions.Chase)
+    .toFrom(GhostStates.Scatter, GhostActions.Scatter)
+    .toFrom(GhostStates.Frightened, GhostActions.Frighten)
+    .toFrom(GhostStates.Paused, GhostActions.Pause);
+
+  ghostState
+    .from(GhostStates.Scatter, GhostActions.Scatter)
+    .toFrom(GhostStates.Chasing, GhostActions.Chase)
+    .toFrom(GhostStates.Frightened, GhostActions.Frighten)
+    .toFrom(GhostStates.Paused, GhostActions.Pause);
+
+  ghostState
+    .from(GhostStates.Frightened, GhostActions.Frighten)
+    .to(GhostStates.Eaten, GhostActions.Eat)
+    .toFrom(GhostStates.Paused, GhostActions.Pause);
+
+  ghostState
+    .from(GhostStates.Eaten, GhostActions.Eat)
+    .to(GhostStates.Scatter, GhostActions.Scatter)
+    .to(GhostStates.Chasing, GhostActions.Chase)
+    .toFrom(GhostStates.Paused, GhostActions.Pause);
 
   it('Can change state to paused?', () => {
     ghostState.change(GhostStates.Paused);
@@ -46,13 +67,13 @@ describe('Create state of waiting going to chasing and to/from paused.', () => {
     ghostState.change(GhostStates.Waiting);
     expect(ghostState.currentState).to.equal(GhostStates.Waiting);
   });
-  it('Can change state to chasing?', () => {
-    ghostState.change(GhostStates.Chasing);
-    expect(ghostState.currentState).to.equal(GhostStates.Chasing);
-  });
   it("Can't change state to frightened? ", () => {
     const canChangeResult = ghostState.canChange(GhostStates.Frightened);
     expect(canChangeResult).to.equal(false);
+  });
+  it('Can change state to chasing?', () => {
+    ghostState.change(GhostStates.Chasing);
+    expect(ghostState.currentState).to.equal(GhostStates.Chasing);
   });
 
   it('Can perform action pause?', () => {
@@ -64,17 +85,17 @@ describe('Create state of waiting going to chasing and to/from paused.', () => {
     ghostState.do(GhostActions.Wait);
     expect(ghostState.currentState).to.equal(GhostStates.Waiting);
   });
+  it("Can't perform action frighten? ", () => {
+    const canChangeResult = ghostState.canDo(GhostActions.Frighten);
+    expect(canChangeResult).to.equal(false);
+  });
   it('Can perform action chase?', () => {
     ghostState.do(GhostActions.Chase);
     expect(ghostState.currentState).to.equal(GhostStates.Chasing);
   });
-  it('Can perform action wait?', () => {
-    ghostState.do(GhostActions.Wait);
-    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
-  });
-  it("Can't perform action frighten? ", () => {
-    const canChangeResult = ghostState.canDo(GhostActions.Frighten);
-    expect(canChangeResult).to.equal(false);
+  it('Can perform action pause?', () => {
+    ghostState.do(GhostActions.Pause);
+    expect(ghostState.currentState).to.equal(GhostStates.Paused);
   });
 
   it('Does resetting change state to waiting?', () => {
@@ -83,62 +104,43 @@ describe('Create state of waiting going to chasing and to/from paused.', () => {
   });
 });
 
-ghostState.reset();
-console.log(ghostState.findAction(GhostStates.Waiting, GhostActions.Pause));
+let resultOnPreChange: string;
+let resultOnPostChange: string;
 
-// describe('ghostState.OnPreChange = (from: GhostStates, to: GhostStates)', () => {
-//   ghostState.OnPreChange = (from: GhostStates, to: GhostStates): boolean => {
-//     resultOnPreChange = `${from} ===> ${to}`;
-//     return true;
-//   };
+describe('Create on pre change state callback.', () => {
+  // tslint:disable-next-line: ter-arrow-parens
+  it('Before doing action chase from waiting.', done => {
+    ghostState.OnPreChange = (
+      from: GhostStates,
+      to: GhostStates,
+      action: GhostActions,
+    ): boolean => {
+      resultOnPreChange = `${from} do ${action}`;
+      return true;
+    };
 
-//   it('resultOnPreChange === "Waiting ===> Chasing"', () => {
-//     expect(resultOnPreChange).to.equal('Waiting ===> Chasing');
-//   });
-// });
+    ghostState.reset();
+    ghostState.do(GhostActions.Chase);
+    expect(resultOnPreChange).to.equal('Waiting do Chase');
+    done();
+  });
+});
 
-// describe('ghostState.OnPostChange = (from: GhostStates, to: GhostStates)', () => {
-//   ghostState.OnPostChange = (from: GhostStates, to: GhostStates): boolean => {
-//     resultOnPostChange = `${from} ===> ${to}`;
-//     return true;
-//   };
+describe('Create on post change state callback.', () => {
+  // tslint:disable-next-line: ter-arrow-parens
+  it('After doing action pause from waiting.', done => {
+    ghostState.OnPostChange = (
+      from: GhostStates,
+      to: GhostStates,
+      action: GhostActions,
+    ): void => {
+      resultOnPostChange = `${from} ===> ${to} do ${action}`;
+      console.log(resultOnPostChange);
+    };
 
-//   it('resultOnPostChange === "Waiting ===> Chasing"', () => {
-//     expect(resultOnPostChange).to.equal('Waiting ===> Chasing');
-//   });
-// });
-
-// const ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
-
-// ghostState
-//   .from(GhostStates.Chasing)
-//   .toFrom(GhostStates.Scatter)
-//   .toFrom(GhostStates.Frightened)
-//   .toFrom(GhostStates.Paused);
-
-// ghostState
-//   .from(GhostStates.Scatter)
-//   .toFrom(GhostStates.Frightened)
-//   .toFrom(GhostStates.Paused);
-
-// ghostState
-//   .from(GhostStates.Frightened)
-//   .to(GhostStates.Eaten)
-//   .toFrom(GhostStates.Paused);
-
-// ghostState
-//   .from(GhostStates.Eaten)
-//   .to(GhostStates.Scatter)
-//   .to(GhostStates.Chasing)
-//   .toFrom(GhostStates.Paused);
-
-// ghostState.from(GhostStates.Paused);
-
-// ghostState
-//   .from(GhostStates.Frightened)
-//   .to(GhostStates.Eaten)
-//   .to(GhostStates.Paused);
-
-// console.log(ghostState.currentState);
-// console.log(ghostState.change(GhostStates.Paused));
-// console.log(ghostState.change(GhostStates.Waiting));
+    ghostState.reset();
+    ghostState.do(GhostActions.Scatter);
+    expect(resultOnPostChange).to.equal('Waiting ===> Scatter do Scatter');
+    done();
+  });
+});
