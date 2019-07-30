@@ -25,6 +25,7 @@ export namespace Typed {
     }
 
     to(toState: T, action?: K): Transition<T, K> {
+      console.log(this.fromState, toState, action);
       if (this._fsm.isTransition(this.fromState, toState)) return this;
 
       if (this._toState === null) {
@@ -35,13 +36,14 @@ export namespace Typed {
       }
 
       if (!this._fsm.isTransition(this.fromState, toState)) {
-        this._fsm.from(this.fromState).to(toState);
+        this._fsm.from(this.fromState).to(toState, action);
       }
 
       return this;
     }
 
     toFrom(toFromState: T, toAction?: K, fromAction?: K): Transition<T, K> {
+      console.log(this.fromState, toFromState, toAction, fromAction);
       if (this._fsm.isTransition(this.fromState, toFromState)) return this;
 
       if (this._toState === null) {
@@ -122,16 +124,21 @@ export namespace Typed {
       );
     }
 
-    findAction(fromState: T, action: K): T {
+    findAction(fromState: T, action: K): Transition<T, K> {
+      let result: Transition<T, K>;
+
       this._transitions.every(
         (value: Transition<T, K>, index: Number, array: Transition<T, K>[]) => {
+          console.log('findAction() : ',value.fromState, value.toState, value.action);
           if (value.fromState === fromState && value.action === action) {
-            return value;
+	    result = value;
+            return false;
           }
+	  return true;
         },
       );
 
-      return undefined;
+      return result;
     }
 
     isAction(fromState: T, action: K): boolean {
@@ -180,21 +187,23 @@ export namespace Typed {
         }
       }
 
-      let foundAction: T;
+      let foundAction: Transition<T, K>;
 
-      if ((foundAction = this.findAction(this.currentState, doAction))) {
+      if (foundAction = this.findAction(this.currentState, doAction)) {
         if (this._onPostChange) {
-          if (this._onPostChange(this.currentState, foundAction, doAction)) {
-            return (this._currentState = foundAction);
+          if (this._onPostChange(this.currentState, foundAction.toState, doAction)) {
+            return (this._currentState = foundAction.toState);
           }
 
           return this._currentState;
         }
-
-        return new Error(
-          `Can't perform action ${doAction} with state ${this.currentState}`,
-        );
+        
+	return (this._currentState = foundAction.toState);
+       );
       }
+   return new Error(
+          `Can't perform action ${doAction} with state ${this.currentState}`,
+      
     }
 
     from(fromState: T): Transition<T, K> {
