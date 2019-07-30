@@ -11,13 +11,101 @@ const enum GhostStates {
 }
 
 const enum GhostActions {
-  Reset,
+  Wait,
   Chase,
   Scatter,
   Frighten,
   Eat,
   Pause,
 }
+
+let ghostState: Typed.FSM<GhostStates, GhostActions>;
+let resultOnPreChange: string;
+let resultOnPostChange: string;
+
+describe('Create ghost state with default state of waiting.', () => {
+  ghostState = new Typed.FSM<GhostStates, GhostActions>(GhostStates.Waiting);
+
+  it('Is current state waiting?', () => {
+    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+  });
+});
+
+describe('Create state of waiting going to chasing and to/from paused.', () => {
+  ghostState
+    .from(GhostStates.Waiting)
+    .to(GhostStates.Chasing, GhostActions.Chase)
+    .toFrom(GhostStates.Paused),
+    GhostActions.Pause;
+
+  it('Can change state to paused?', () => {
+    ghostState.change(GhostStates.Paused);
+    expect(ghostState.currentState).to.equal(GhostStates.Paused);
+  });
+  it('Can change state to waiting?', () => {
+    ghostState.change(GhostStates.Waiting);
+    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+  });
+  it('Can change state to chasing?', () => {
+    ghostState.change(GhostStates.Chasing);
+    expect(ghostState.currentState).to.equal(GhostStates.Chasing);
+  });
+  it("Can't change state to frightened? ", () => {
+    const canChangeResult = ghostState.canChange(GhostStates.Frightened);
+    expect(canChangeResult).to.equal(false);
+  });
+
+  it('Can perform action pause?', () => {
+    ghostState.do(GhostActions.Pause);
+    expect(ghostState.currentState).to.equal(GhostStates.Paused);
+  });
+  it('Can perform action waiting?', () => {
+    ghostState.do(GhostActions.Wait);
+    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+  });
+  it('Can perform action chasing?', () => {
+    ghostState.do(GhostActions.Chase);
+    expect(ghostState.currentState).to.equal(GhostStates.Chasing);
+  });
+  it('Can perform action waiting?', () => {
+    ghostState.do(GhostActions.Wait);
+    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+  });
+  it("Can't perform action frighten? ", () => {
+    const canChangeResult = ghostState.canDo(GhostActions.Frighten);
+    expect(canChangeResult).to.equal(false);
+  });
+
+  it('Does resetting change state to waiting?', () => {
+    ghostState.reset();
+    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
+  });
+});
+
+ghostState.reset();
+console.log(ghostState.findAction);
+
+// describe('ghostState.OnPreChange = (from: GhostStates, to: GhostStates)', () => {
+//   ghostState.OnPreChange = (from: GhostStates, to: GhostStates): boolean => {
+//     resultOnPreChange = `${from} ===> ${to}`;
+//     return true;
+//   };
+
+//   it('resultOnPreChange === "Waiting ===> Chasing"', () => {
+//     expect(resultOnPreChange).to.equal('Waiting ===> Chasing');
+//   });
+// });
+
+// describe('ghostState.OnPostChange = (from: GhostStates, to: GhostStates)', () => {
+//   ghostState.OnPostChange = (from: GhostStates, to: GhostStates): boolean => {
+//     resultOnPostChange = `${from} ===> ${to}`;
+//     return true;
+//   };
+
+//   it('resultOnPostChange === "Waiting ===> Chasing"', () => {
+//     expect(resultOnPostChange).to.equal('Waiting ===> Chasing');
+//   });
+// });
 
 // const ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting);
 
@@ -49,77 +137,6 @@ const enum GhostActions {
 //   .from(GhostStates.Frightened)
 //   .to(GhostStates.Eaten)
 //   .to(GhostStates.Paused);
-
-let ghostState: Typed.FSM<GhostStates, GhostActions>;
-let resultOnPreChange: string;
-let resultOnPostChange: string;
-
-describe('ghostState = new Typed.FSM<GhostStates>(GhostStates.Waiting)', () => {
-  ghostState = new Typed.FSM<GhostStates, GhostActions>(GhostStates.Waiting);
-  console.log(ghostState.currentState);
-
-  it('ghostState.currentState === GhostStates.Waiting', () => {
-    console.log(ghostState.currentState);
-    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
-  });
-});
-
-describe('ghostState\n\t.from()\n\t.to()\n\t.toFrom();', () => {
-  ghostState
-    .from(GhostStates.Waiting)
-    .to(GhostStates.Chasing, GhostActions.Chase)
-    .toFrom(GhostStates.Paused),
-    GhostActions.Pause;
-
-  it('ghostState.change(GhostStates.Paused) === GhostStates.Paused', () => {
-    ghostState.change(GhostStates.Paused);
-    expect(ghostState.currentState).to.equal(GhostStates.Paused);
-  });
-  it('ghostState.change(GhostStates.Waiting) === GhostStates.Waiting)', () => {
-    ghostState.change(GhostStates.Waiting);
-    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
-  });
-  it('ghostState.change(GhostStates.Waiting) === GhostStates.Waiting)', () => {
-    ghostState.change(GhostStates.Waiting);
-    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
-  });
-  it('ghostState.change(GhostStates.Chasing) === GhostStates.Chasing', () => {
-    ghostState.change(GhostStates.Chasing);
-    expect(ghostState.currentState).to.equal(GhostStates.Chasing);
-  });
-  it('ghostState.reset() === GhostStates.Waiting', () => {
-    ghostState.reset();
-    expect(ghostState.currentState).to.equal(GhostStates.Waiting);
-  });
-  it('ghostState.canChange(GhostStates.Frightened) === false', () => {
-    const canChangeResult = ghostState.canChange(GhostStates.Frightened);
-    expect(canChangeResult).to.equal(false);
-  });
-});
-
-describe('ghostState.OnPreChange = (from: GhostStates, to: GhostStates)', () => {
-  ghostState.OnPreChange = (from: GhostStates, to: GhostStates): boolean => {
-    resultOnPreChange = `${from} ===> ${to}`;
-    return true;
-  };
-
-  it('resultOnPreChange === "Waiting ===> Chasing"', () => {
-    expect(resultOnPreChange).to.equal('Waiting ===> Chasing');
-  });
-});
-
-describe('ghostState.OnPostChange = (from: GhostStates, to: GhostStates)', () => {
-  ghostState.OnPostChange = (from: GhostStates, to: GhostStates): boolean => {
-    resultOnPostChange = `${from} ===> ${to}`;
-    return true;
-  };
-
-  it('resultOnPostChange === "Waiting ===> Chasing"', () => {
-    expect(resultOnPostChange).to.equal('Waiting ===> Chasing');
-  });
-});
-
-console.log(ghostState.currentState);
 
 // console.log(ghostState.currentState);
 // console.log(ghostState.change(GhostStates.Paused));

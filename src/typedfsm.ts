@@ -59,12 +59,12 @@ export namespace Typed {
     }
   }
 
-  export interface OnPreChange<T> {
-    (from: T, to: T): boolean;
+  export interface OnPreChange<T, K> {
+    (from: T, to: T, action: K): boolean;
   }
 
-  export interface OnPostChange<T> {
-    (from: T, to: T): boolean;
+  export interface OnPostChange<T, K> {
+    (from: T, to: T, action: K): boolean;
   }
   export interface OnEnter<T> {
     (from: T, to: T): boolean;
@@ -76,8 +76,8 @@ export namespace Typed {
     private _defaultState: T;
     private _currentState: T;
     private _transitions: Transition<T, K>[];
-    private _onPreChange: OnPreChange<T>;
-    private _onPostChange: OnPostChange<T>;
+    private _onPreChange: OnPreChange<T, K>;
+    private _onPostChange: OnPostChange<T, K>;
     private _onEnterState: OnEnter<T>;
     private _onLeaveState: OnLeave<T>;
 
@@ -93,11 +93,11 @@ export namespace Typed {
       return this._transitions;
     }
 
-    set OnPreChange(onPreChange: OnPreChange<T>) {
+    set OnPreChange(onPreChange: OnPreChange<T, K>) {
       this._onPreChange = onPreChange;
     }
 
-    set OnPostChange(onPostChange: OnPostChange<T>) {
+    set OnPostChange(onPostChange: OnPostChange<T, K>) {
       this._onPostChange = onPostChange;
     }
 
@@ -122,12 +122,20 @@ export namespace Typed {
       );
     }
 
-    isAction(fromState: T, action: K): boolean {
-      return !this._transitions.every(
+    findAction(fromState: T, action: K): T {
+      this._transitions.every(
         (value: Transition<T, K>, index: Number, array: Transition<T, K>[]) => {
-          return !(value.fromState === fromState && value.action === action);
+          if (value.fromState === fromState && value.action === action) {
+            return value;
+          }
         },
       );
+
+      return undefined;
+    }
+
+    isAction(fromState: T, action: K): boolean {
+      return this.findAction(fromState, action) !== undefined;
     }
 
     reset() {
@@ -140,13 +148,13 @@ export namespace Typed {
 
     change(changeState: T): T | Error {
       if (this._onPreChange) {
-        if (!this._onPreChange(this.currentState, changeState)) {
+        if (!this._onPreChange(this.currentState, changeState, undefined)) {
           return this.currentState;
         }
       }
       if (this.canChange(changeState)) {
         if (this._onPostChange) {
-          if (this._onPostChange(this.currentState, changeState)) {
+          if (this._onPostChange(this.currentState, changeState, undefined)) {
             return (this._currentState = changeState);
           }
 
@@ -161,14 +169,32 @@ export namespace Typed {
       );
     }
 
-    canDo(action: K): boolean {
-      return this.isAction(this.currentState, action);
+    canDo(doAction: K): boolean {
+      return this.isAction(this.currentState, doAction);
     }
 
-    do(action: K): T | Error {
-      return new Error(
-        `Can't perform action ${action} in state ${this.currentState}`,
-      );
+    do(doAction: K): T | Error {
+      if (this._onPreChange) {
+        if (!this._onPreChange(this.currentState, undefined, doAction)) {
+          return this.currentState;
+        }
+      }
+
+      let foundAction: T;
+
+      if ((foundAction = this.findAction(this.currentState, doAction))) {
+        if (this._onPostChange) {
+          if (this._onPostChange(this.currentState, foundAction, doAction)) {
+            return (this._currentState = foundAction);
+          }
+
+          return this._currentState;
+        }
+
+        return new Error(
+          `Can't perform action ${doAction} with state ${this.currentState}`,
+        );
+      }
     }
 
     from(fromState: T): Transition<T, K> {
