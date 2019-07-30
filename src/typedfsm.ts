@@ -53,7 +53,7 @@ export namespace Typed {
     }
 
     to(toState: T, toAction?: K): Transition<T, K> {
-      if (this._fsm.isTransition(this.fromState, toState)) return this;
+      if (this._fsm.isTransition(this.fromState, toState)) { return this; }
 
       if (this._toState === null) {
         this._toState = toState;
@@ -70,7 +70,7 @@ export namespace Typed {
     }
 
     toFrom(toFromState: T, toAction?: K): Transition<T, K> {
-      if (this._fsm.isTransition(this.fromState, toFromState)) return this;
+      if (this._fsm.isTransition(this.fromState, toFromState)) { return this; }
 
       if (this._toState === null) {
         this._toState = toFromState;
