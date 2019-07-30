@@ -171,7 +171,7 @@ export namespace Typed {
 
     change(changeState: T): T | Error {
       if (this._onPreChange) {
-        if (!this._onPreChange(this.currentState, changeState, undefined)) {
+        if (!this._onPreChange(this.currentState, changeState, null)) {
           return this.currentState;
         }
       }
@@ -203,7 +203,7 @@ export namespace Typed {
 
     do(doAction: K): T | Error {
       if (this._onPreChange) {
-        if (!this._onPreChange(this.currentState, undefined, doAction)) {
+        if (!this._onPreChange(this.currentState, null, doAction)) {
           return this.currentState;
         }
       }
