@@ -7,14 +7,6 @@ export namespace Typed {
     (from: T, to: T, action: K): void;
   }
 
-  export interface OnEnter<T> {
-    (from: T, to: T): boolean;
-  }
-
-  export interface OnLeave<T> {
-    (from: T, to: T): boolean;
-  }
-
   class Transition<T, K> {
     private _fsm: FSM<T, K>;
     private _fromState: T;
@@ -53,7 +45,9 @@ export namespace Typed {
     }
 
     to(toState: T, toAction?: K): Transition<T, K> {
-      if (this._fsm.isTransition(this.fromState, toState)) { return this; }
+      if (this._fsm.isTransition(this.fromState, toState)) {
+        return this;
+      }
 
       if (this._toState === null) {
         this._toState = toState;
@@ -70,7 +64,9 @@ export namespace Typed {
     }
 
     toFrom(toFromState: T, toAction?: K): Transition<T, K> {
-      if (this._fsm.isTransition(this.fromState, toFromState)) { return this; }
+      if (this._fsm.isTransition(this.fromState, toFromState)) {
+        return this;
+      }
 
       if (this._toState === null) {
         this._toState = toFromState;
@@ -97,8 +93,6 @@ export namespace Typed {
     private _transitions: Transition<T, K>[];
     private _onPreChange: OnPreChange<T, K>;
     private _onPostChange: OnPostChange<T, K>;
-    private _onEnterState: OnEnter<T>;
-    private _onLeaveState: OnLeave<T>;
 
     get defaultState(): T {
       return this._defaultState;
@@ -118,14 +112,6 @@ export namespace Typed {
 
     set OnPostChange(onPostChange: OnPostChange<T, K>) {
       this._onPostChange = onPostChange;
-    }
-
-    set OnEnterState(onEnterState: OnEnter<T>) {
-      this._onEnterState = onEnterState;
-    }
-
-    set OnLeaveState(onLeaveState: OnLeave<T>) {
-      this._onLeaveState = onLeaveState;
     }
 
     constructor(defaultState: T) {
@@ -240,31 +226,19 @@ export namespace Typed {
     from(fromState: T, fromAction?: K): Transition<T, K> {
       this._transitions = this._transitions ? this._transitions : [];
 
-      let exisitingTransition: Transition<T, K>;
+      let foundTransition = this.findTransition(fromState, null);
 
-      if (
-        this._transitions.every(
-          (
-            value: Transition<T, K>,
-            index: Number,
-            array: Transition<T, K>[],
-          ) => {
-            exisitingTransition = value;
-            return !(value.fromState === fromState && value.toState === null);
-          },
-        )
-      ) {
-        const transition = new Transition<T, K>(
+      if (!foundTransition) {
+        foundTransition = new Transition<T, K>(
           this,
           fromState,
           fromAction,
           null,
+          null,
         );
-
-        return transition;
       }
 
-      return exisitingTransition;
+      return foundTransition;
     }
   }
 }

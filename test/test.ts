@@ -114,7 +114,7 @@ describe('Create ghost states and actions.', () => {
 let resultOnPostChange: string;
 
 describe('Create on pre change state callback.', () => {
-   // tslint:disable-next-line: ter-arrow-parens
+  // tslint:disable-next-line: ter-arrow-parens
   it('Should be same state if we cancel it? (change)', () => {
     ghostState.OnPreChange = (
       from: GhostStates,
@@ -145,7 +145,7 @@ describe('Create on pre change state callback.', () => {
     expect(ghostState.currentState).to.equal(GhostStates.Chasing);
     // done();
   });
- // tslint:disable-next-line: ter-arrow-parens
+  // tslint:disable-next-line: ter-arrow-parens
   it('Should be same state if we cancel it? (do)', () => {
     ghostState.OnPreChange = (
       from: GhostStates,
@@ -208,5 +208,19 @@ describe('Create on post change state callback.', () => {
     ghostState.do(GhostActions.Scatter);
     expect(ghostState.currentState).to.equal(GhostStates.Scatter);
     done();
+  });
+});
+
+describe('Check if we can perform invalid actions or state changes.', () => {
+  it('Should return an error if given invalid action? (do)', () => {
+    ghostState.reset();
+    const result = ghostState.do(GhostActions.Eat);
+    expect(result instanceof Error).to.equal(true);
+  });
+
+  it('Should return an error if given invalid state? (change)', () => {
+    ghostState.reset();
+    const result = ghostState.change(GhostStates.Eaten);
+    expect(result instanceof Error).to.equal(true);
   });
 });
