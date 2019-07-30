@@ -8,7 +8,7 @@ A TypeScript Finite State Machine library.
 
 ## Example
 
-First create an enum with the different states. It can have text values
+First create an enum with the states. It can have text values
 
 ```typescript
 const enum GhostStates {
