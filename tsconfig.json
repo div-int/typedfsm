@@ -18,6 +18,7 @@
     ".nyc_output",
     "coverage",
     "dist",
+    "test",
     ".circleci"
   ]
 }
