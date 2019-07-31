@@ -54,14 +54,14 @@ ghostState
   .to(GhostStates.Chasing, GhostActions.Chase)
   .toFrom(GhostStates.Paused, GhostActions.Pause);
 
-describe('Create ghost state machine with default state of waiting.', () => {
-  it('Is current state waiting?', () => {
+describe('Test ghost state machine.', () => {
+  it('Is the current/default state waiting?', () => {
     ghostState.reset();
     expect(ghostState.currentState).to.equal(GhostStates.Waiting);
   });
 });
 
-describe('Create ghost states and actions.', () => {
+describe('Test ghost states and actions.', () => {
   it('Can change state to paused?', () => {
     ghostState.change(GhostStates.Paused);
     expect(ghostState.currentState).to.equal(GhostStates.Paused);
