@@ -119,16 +119,14 @@ export namespace Typed {
     findTransition(fromState: T, toState: T): Transition<T, K> {
       let result: Transition<T, K>;
 
-      this.transitions.every(
-        (value: Transition<T, K>, index: Number, array: Transition<T, K>[]) => {
-          if (value.fromState === fromState && value.toState === toState) {
-            result = value;
-            return false;
-          }
+      this.transitions.every((value: Transition<T, K>) => {
+        if (value.fromState === fromState && value.toState === toState) {
+          result = value;
+          return false;
+        }
 
-          return true;
-        },
-      );
+        return true;
+      });
 
       return result;
     }
@@ -140,16 +138,14 @@ export namespace Typed {
     findAction(fromState: T, toAction: K): Transition<T, K> {
       let result: Transition<T, K>;
 
-      this.transitions.every(
-        (value: Transition<T, K>, index: Number, array: Transition<T, K>[]) => {
-          if (value.fromState === fromState && value.toAction === toAction) {
-            result = value;
-            return false;
-          }
+      this.transitions.every((value: Transition<T, K>) => {
+        if (value.fromState === fromState && value.toAction === toAction) {
+          result = value;
+          return false;
+        }
 
-          return true;
-        },
-      );
+        return true;
+      });
 
       return result;
     }
