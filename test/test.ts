@@ -171,8 +171,7 @@ describe('Create on pre change state callback.', () => {
 });
 
 describe('Create on post change state callback.', () => {
-  // tslint:disable-next-line: ter-arrow-parens
-  it('Should be scatter after callback? (change)', done => {
+  it('Should be scatter after callback? (change)', () => {
     ghostState.OnPostChange = (
       from: GhostStates,
       to: GhostStates,
@@ -184,10 +183,8 @@ describe('Create on post change state callback.', () => {
     ghostState.reset();
     ghostState.change(GhostStates.Scatter);
     expect(ghostState.currentState).to.equal(GhostStates.Scatter);
-    done();
   });
-  // tslint:disable-next-line: ter-arrow-parens
-  it('Should be scatter after callback? (do)', done => {
+  it('Should be scatter after callback? (do)', () => {
     ghostState.OnPostChange = (
       from: GhostStates,
       to: GhostStates,
@@ -199,7 +196,6 @@ describe('Create on post change state callback.', () => {
     ghostState.reset();
     ghostState.do(GhostActions.Scatter);
     expect(ghostState.currentState).to.equal(GhostStates.Scatter);
-    done();
   });
 });
 
