@@ -20,7 +20,7 @@
     ],
     "exclude": [
       "**/coverage/**",
-      "**/test.ts",
+      "**/test/**",
       "**/*.d.ts"
     ],
     "require": "ts-node/register",
