@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "description": "A TypeScript finite state machine library",
   "main": "dist/typedfsm.js",
-  "types": "dist/typedfsm.d.ts",
+  "types": "dist/src/typedfsm.d.ts",
   "scripts": {
     "lint": "npx tslint -p .",
     "lint-fix": "npx tslint -p . --fix",
