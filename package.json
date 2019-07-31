@@ -2,7 +2,7 @@
   "name": "@div-int/typedfsm",
   "version": "0.0.3",
   "description": "A TypeScript finite state machine library",
-  "main": "dist/typedfsm.js",
+  "main": "dist/src/typedfsm.js",
   "types": "dist/src/typedfsm.d.ts",
   "scripts": {
     "lint": "npx tslint -p .",
