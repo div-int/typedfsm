@@ -52,33 +52,26 @@ export namespace Typed {
       if (this._toState === null) {
         this._toState = toState;
         this._toAction = toAction;
+
         this._fsm.transitions.push(this);
         return this;
       }
 
-      if (!this._fsm.isTransition(this.fromState, toState)) {
-        this._fsm.from(this.fromState, this.fromAction).to(toState, toAction);
-      }
+      this._fsm.from(this.fromState, this.fromAction).to(toState, toAction);
 
       return this;
     }
 
     toFrom(toFromState: T, toAction?: K): Transition<T, K> {
+      if (!this._fsm.isTransition(toFromState, this.fromState)) {
+        this._fsm
+          .from(toFromState, toAction)
+          .to(this.fromState, this.fromAction);
+      }
       if (!this._fsm.isTransition(this.fromState, toFromState)) {
-        if (this._toState === null) {
-          this._toState = toFromState;
-        }
-
-        if (!this._fsm.isTransition(toFromState, this.fromState)) {
-          this._fsm
-            .from(toFromState, toAction)
-            .to(this.fromState, this.fromAction);
-        }
-        if (!this._fsm.isTransition(this.fromState, toFromState)) {
-          this._fsm
-            .from(this.fromState, this.fromAction)
-            .to(toFromState, toAction);
-        }
+        this._fsm
+          .from(this.fromState, this.fromAction)
+          .to(toFromState, toAction);
       }
 
       return this;
@@ -101,6 +94,8 @@ export namespace Typed {
     }
 
     get transitions(): Transition<T, K>[] {
+      this._transitions = this._transitions ? this._transitions : [];
+
       return this._transitions;
     }
 
@@ -124,7 +119,7 @@ export namespace Typed {
     findTransition(fromState: T, toState: T): Transition<T, K> {
       let result: Transition<T, K>;
 
-      this._transitions.every(
+      this.transitions.every(
         (value: Transition<T, K>, index: Number, array: Transition<T, K>[]) => {
           if (value.fromState === fromState && value.toState === toState) {
             result = value;
@@ -145,7 +140,7 @@ export namespace Typed {
     findAction(fromState: T, toAction: K): Transition<T, K> {
       let result: Transition<T, K>;
 
-      this._transitions.every(
+      this.transitions.every(
         (value: Transition<T, K>, index: Number, array: Transition<T, K>[]) => {
           if (value.fromState === fromState && value.toAction === toAction) {
             result = value;
@@ -222,21 +217,7 @@ export namespace Typed {
     }
 
     from(fromState: T, fromAction?: K): Transition<T, K> {
-      this._transitions = this._transitions ? this._transitions : [];
-
-      let foundTransition = this.findTransition(fromState, null);
-
-      if (!foundTransition) {
-        foundTransition = new Transition<T, K>(
-          this,
-          fromState,
-          fromAction,
-          null,
-          null,
-        );
-      }
-
-      return foundTransition;
+      return new Transition<T, K>(this, fromState, fromAction, null, null);
     }
   }
 }

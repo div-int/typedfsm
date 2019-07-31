@@ -12,5 +12,12 @@
     "plugins": [{
       "name": "typescript-tslint-plugin"
     }]
-  }
+  },
+  "exclude": [
+    "node_modules",
+    ".nyc_output",
+    "coverage",
+    "dist",
+    ".circleci"
+  ]
 }

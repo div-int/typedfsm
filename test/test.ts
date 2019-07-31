@@ -32,15 +32,25 @@ describe('Create ghost state machine with default state of waiting.', () => {
 });
 
 describe('Create ghost states and actions.', () => {
+  // ghostState.from(GhostStates.Waiting, GhostActions.Wait);
+  // ghostState.from(GhostStates.Waiting, GhostActions.Wait);
+
   ghostState
     .from(GhostStates.Waiting, GhostActions.Wait)
     .to(GhostStates.Chasing, GhostActions.Chase)
+    // duplicate to() method for test purposes.
+    // .to(GhostStates.Chasing, GhostActions.Chase)
     .to(GhostStates.Scatter, GhostActions.Scatter)
+    // .to(GhostStates.Scatter, GhostActions.Scatter)
+    .to(GhostStates.Paused, GhostActions.Pause)
     .toFrom(GhostStates.Paused, GhostActions.Pause);
+  // .toFrom(GhostStates.Paused, GhostActions.Pause);
 
   ghostState
     .from(GhostStates.Chasing, GhostActions.Chase)
     .toFrom(GhostStates.Scatter, GhostActions.Scatter)
+    // duplicate toFrom() method for test purposes.
+    // .toFrom(GhostStates.Scatter, GhostActions.Scatter)
     .toFrom(GhostStates.Frightened, GhostActions.Frighten)
     .toFrom(GhostStates.Paused, GhostActions.Pause);
 
@@ -58,6 +68,7 @@ describe('Create ghost states and actions.', () => {
   ghostState
     .from(GhostStates.Eaten, GhostActions.Eat)
     .to(GhostStates.Scatter, GhostActions.Scatter)
+    .to(GhostStates.Chasing, GhostActions.Chase)
     .to(GhostStates.Chasing, GhostActions.Chase)
     .toFrom(GhostStates.Paused, GhostActions.Pause);
 
