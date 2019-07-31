@@ -27,30 +27,20 @@ describe('Create ghost state machine with default state of waiting.', () => {
   it('Is current state waiting?', () => {
     ghostState.reset();
     expect(ghostState.currentState).to.equal(GhostStates.Waiting);
-    // done();
   });
 });
 
 describe('Create ghost states and actions.', () => {
-  // ghostState.from(GhostStates.Waiting, GhostActions.Wait);
-  // ghostState.from(GhostStates.Waiting, GhostActions.Wait);
-
   ghostState
     .from(GhostStates.Waiting, GhostActions.Wait)
     .to(GhostStates.Chasing, GhostActions.Chase)
-    // duplicate to() method for test purposes.
-    // .to(GhostStates.Chasing, GhostActions.Chase)
     .to(GhostStates.Scatter, GhostActions.Scatter)
-    // .to(GhostStates.Scatter, GhostActions.Scatter)
     .to(GhostStates.Paused, GhostActions.Pause)
     .toFrom(GhostStates.Paused, GhostActions.Pause);
-  // .toFrom(GhostStates.Paused, GhostActions.Pause);
 
   ghostState
     .from(GhostStates.Chasing, GhostActions.Chase)
     .toFrom(GhostStates.Scatter, GhostActions.Scatter)
-    // duplicate toFrom() method for test purposes.
-    // .toFrom(GhostStates.Scatter, GhostActions.Scatter)
     .toFrom(GhostStates.Frightened, GhostActions.Frighten)
     .toFrom(GhostStates.Paused, GhostActions.Pause);
 
@@ -124,7 +114,6 @@ describe('Create ghost states and actions.', () => {
 let resultOnPostChange: string;
 
 describe('Create on pre change state callback.', () => {
-  // tslint:disable-next-line: ter-arrow-parens
   it('Should be same state if we cancel it? (change)', () => {
     ghostState.OnPreChange = (
       from: GhostStates,
@@ -137,10 +126,8 @@ describe('Create on pre change state callback.', () => {
     ghostState.reset();
     ghostState.change(GhostStates.Chasing);
     expect(ghostState.currentState).to.equal(GhostStates.Waiting);
-    // done();
   });
 
-  // tslint:disable-next-line: ter-arrow-parens
   it("Should be chasing if we don't cancel it? (change)", () => {
     ghostState.OnPreChange = (
       from: GhostStates,
@@ -153,9 +140,7 @@ describe('Create on pre change state callback.', () => {
     ghostState.reset();
     ghostState.change(GhostStates.Chasing);
     expect(ghostState.currentState).to.equal(GhostStates.Chasing);
-    // done();
   });
-  // tslint:disable-next-line: ter-arrow-parens
   it('Should be same state if we cancel it? (do)', () => {
     ghostState.OnPreChange = (
       from: GhostStates,
@@ -168,10 +153,8 @@ describe('Create on pre change state callback.', () => {
     ghostState.reset();
     ghostState.do(GhostActions.Chase);
     expect(ghostState.currentState).to.equal(GhostStates.Waiting);
-    // done();
   });
 
-  // tslint:disable-next-line: ter-arrow-parens
   it("Should be chasing if we don't cancel it? (do)", () => {
     ghostState.OnPreChange = (
       from: GhostStates,
@@ -184,7 +167,6 @@ describe('Create on pre change state callback.', () => {
     ghostState.reset();
     ghostState.do(GhostActions.Chase);
     expect(ghostState.currentState).to.equal(GhostStates.Chasing);
-    // done();
   });
 });
 
