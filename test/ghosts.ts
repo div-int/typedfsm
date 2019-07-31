@@ -19,9 +19,7 @@ const enum GhostActions {
   Pause = 'Pause',
 }
 
-const ghostState = new Typed.FSM<GhostStates, GhostActions>(
-  GhostStates.Waiting,
-);
+const ghostState = new Typed.FSM<GhostStates, GhostActions>(GhostStates.Waiting);
 
 ghostState
   .from(GhostStates.Waiting, GhostActions.Wait)
@@ -98,7 +96,7 @@ describe('Test ghost states and actions.', () => {
     expect(ghostState.currentState).to.equal(GhostStates.Waiting);
   });
 
-  it("Can't perform action frighten? ", () => {
+  it("Can't perform action frighten?", () => {
     const canChangeResult = ghostState.canDo(GhostActions.Frighten);
     expect(canChangeResult).to.equal(false);
   });
@@ -123,11 +121,7 @@ let resultOnPostChange: string;
 
 describe('Create on pre change state callback.', () => {
   it('Should be same state if we cancel it? (change)', () => {
-    ghostState.OnPreChange = (
-      from: GhostStates,
-      to: GhostStates,
-      action: GhostActions,
-    ): boolean => {
+    ghostState.OnPreChange = (from: GhostStates, to: GhostStates, action: GhostActions): boolean => {
       return false;
     };
 
@@ -137,11 +131,7 @@ describe('Create on pre change state callback.', () => {
   });
 
   it("Should be chasing if we don't cancel it? (change)", () => {
-    ghostState.OnPreChange = (
-      from: GhostStates,
-      to: GhostStates,
-      action: GhostActions,
-    ): boolean => {
+    ghostState.OnPreChange = (from: GhostStates, to: GhostStates, action: GhostActions): boolean => {
       return true;
     };
 
@@ -151,11 +141,7 @@ describe('Create on pre change state callback.', () => {
   });
 
   it('Should be same state if we cancel it? (do)', () => {
-    ghostState.OnPreChange = (
-      from: GhostStates,
-      to: GhostStates,
-      action: GhostActions,
-    ): boolean => {
+    ghostState.OnPreChange = (from: GhostStates, to: GhostStates, action: GhostActions): boolean => {
       return false;
     };
 
@@ -165,11 +151,7 @@ describe('Create on pre change state callback.', () => {
   });
 
   it("Should be chasing if we don't cancel it? (do)", () => {
-    ghostState.OnPreChange = (
-      from: GhostStates,
-      to: GhostStates,
-      action: GhostActions,
-    ): boolean => {
+    ghostState.OnPreChange = (from: GhostStates, to: GhostStates, action: GhostActions): boolean => {
       return true;
     };
 
@@ -181,11 +163,7 @@ describe('Create on pre change state callback.', () => {
 
 describe('Create on post change state callback.', () => {
   it('Should be scatter after callback? (change)', () => {
-    ghostState.OnPostChange = (
-      from: GhostStates,
-      to: GhostStates,
-      action: GhostActions,
-    ): void => {
+    ghostState.OnPostChange = (from: GhostStates, to: GhostStates, action: GhostActions): void => {
       resultOnPostChange = `${from} ===> ${to} do ${action}`;
     };
 
@@ -195,11 +173,7 @@ describe('Create on post change state callback.', () => {
   });
 
   it('Should be scatter after callback? (do)', () => {
-    ghostState.OnPostChange = (
-      from: GhostStates,
-      to: GhostStates,
-      action: GhostActions,
-    ): void => {
+    ghostState.OnPostChange = (from: GhostStates, to: GhostStates, action: GhostActions): void => {
       resultOnPostChange = `${from} ===> ${to} do ${action}`;
     };
 
