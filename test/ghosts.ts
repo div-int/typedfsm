@@ -1,4 +1,4 @@
-import { Typed } from '../../typedfsm';
+import { Typed } from '../src/typedfsm';
 import { expect } from 'chai';
 
 const enum GhostStates {
