@@ -60,3 +60,14 @@ describe('Do nothing to the traffic lights state.', () => {
     expect(trafficLightState.currentState).to.equal(TrafficLightsStates.RedAmber);
   });
 });
+
+describe('Do change after 1000ms delay.', () => {
+  it('it should wait 1000ms before changing state of traffic lights?', async () => {
+    const tStart = process.hrtime.bigint();
+    await trafficLightState.doAfter(TrafficLightsActions.Change, 1000);
+    const tEnd = process.hrtime.bigint();
+
+    expect(Number((tEnd - tStart) / BigInt(1000000))).to.greaterThan(1000);
+    expect(trafficLightState.currentState).to.equal(TrafficLightsStates.Green);
+  });
+});

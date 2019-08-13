@@ -30,13 +30,7 @@ export namespace Typed {
       return this._toAction;
     }
 
-    constructor(
-      fsm: FSM<T, K>,
-      fromState: T,
-      fromAction: K,
-      toState: T,
-      toAction?: K,
-    ) {
+    constructor(fsm: FSM<T, K>, fromState: T, fromAction: K, toState: T, toAction?: K) {
       this._fsm = fsm;
       this._fromState = fromState;
       this._fromAction = fromAction;
@@ -64,14 +58,10 @@ export namespace Typed {
 
     toFrom(toFromState: T, toAction?: K): Transition<T, K> {
       if (!this._fsm.isTransition(toFromState, this.fromState)) {
-        this._fsm
-          .from(toFromState, toAction)
-          .to(this.fromState, this.fromAction);
+        this._fsm.from(toFromState, toAction).to(this.fromState, this.fromAction);
       }
       if (!this._fsm.isTransition(this.fromState, toFromState)) {
-        this._fsm
-          .from(this.fromState, this.fromAction)
-          .to(toFromState, toAction);
+        this._fsm.from(this.fromState, this.fromAction).to(toFromState, toAction);
       }
 
       return this;
@@ -167,23 +157,15 @@ export namespace Typed {
 
       let foundTransition: Transition<T, K>;
 
-      if (
-        (foundTransition = this.findTransition(this.currentState, changeState))
-      ) {
+      if ((foundTransition = this.findTransition(this.currentState, changeState))) {
         if (this._onPostChange) {
-          this._onPostChange(
-            this.currentState,
-            changeState,
-            foundTransition.toAction,
-          );
+          this._onPostChange(this.currentState, changeState, foundTransition.toAction);
         }
 
         return (this._currentState = changeState);
       }
 
-      return new Error(
-        `Can't change from ${this.currentState} to ${changeState}`,
-      );
+      return new Error(`Can't change from ${this.currentState} to ${changeState}`);
     }
 
     canDo(doAction: K): boolean {
@@ -207,9 +189,12 @@ export namespace Typed {
         return (this._currentState = foundAction.toState);
       }
 
-      return new Error(
-        `Can't perform action ${doAction} with state ${this.currentState}`,
-      );
+      return new Error(`Can't perform action ${doAction} with state ${this.currentState}`);
+    }
+
+    async doAfter(doAction: K, doAfter: number): Promise<T> {
+      // throw Error(`doAfter(${doAction}, ${doAfter}) : Not implemented`);
+      return new Promise<T>(resolve => setTimeout(resolve, doAfter));
     }
 
     from(fromState: T, fromAction?: K): Transition<T, K> {
