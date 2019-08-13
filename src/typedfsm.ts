@@ -168,6 +168,18 @@ export namespace Typed {
       return new Error(`Can't change from ${this.currentState} to ${changeState}`);
     }
 
+    async changeAfter(changeState: T, doAfter: number): Promise<T> {
+      // throw Error(`doAfter(${doAction}, ${doAfter}) : Not implemented`);
+      return new Promise<T>(
+        // tslint:disable-next-line: ter-prefer-arrow-callback
+        function (resolve: (arg0: any) => void) {
+          setTimeout(() => {
+            resolve(this.change(changeState));
+          },         doAfter);
+        }.bind(this),
+      );
+    }
+
     canDo(doAction: K): boolean {
       return this.isAction(this.currentState, doAction);
     }
@@ -194,7 +206,14 @@ export namespace Typed {
 
     async doAfter(doAction: K, doAfter: number): Promise<T> {
       // throw Error(`doAfter(${doAction}, ${doAfter}) : Not implemented`);
-      return new Promise<T>(resolve => setTimeout(resolve, doAfter));
+      return new Promise<T>(
+        // tslint:disable-next-line: ter-prefer-arrow-callback
+        function (resolve: (arg0: any) => void) {
+          setTimeout(() => {
+            resolve(this.do(doAction));
+          },         doAfter);
+        }.bind(this),
+      );
     }
 
     from(fromState: T, fromAction?: K): Transition<T, K> {
