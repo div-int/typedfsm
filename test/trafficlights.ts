@@ -60,3 +60,41 @@ describe('Do nothing to the traffic lights state.', () => {
     expect(trafficLightState.currentState).to.equal(TrafficLightsStates.RedAmber);
   });
 });
+
+const tStart = process.hrtime.bigint();
+const promise = trafficLightState.doAfter(TrafficLightsActions.Change, 1026);
+
+describe('Do change after 1000ms delay. (doAfter)', () => {
+  it('it should still be red and amber?', () => {
+    expect(trafficLightState.currentState).to.equal(TrafficLightsStates.RedAmber);
+  });
+  it('it should wait 1000ms before changing state of traffic lights?', async () => {
+    await promise;
+    const tEnd = process.hrtime.bigint();
+
+    expect(Number((tEnd - tStart) / BigInt(1000000))).to.greaterThan(999);
+  });
+  it('it should now be green?', () => {
+    expect(trafficLightState.currentState).to.equal(TrafficLightsStates.Green);
+  });
+});
+
+promise.then(() => {
+  const tStart = process.hrtime.bigint();
+  const promise = trafficLightState.changeAfter(TrafficLightsStates.Amber, 1026);
+
+  describe('Do change after 1000ms delay. (changeAfter)', () => {
+    it('it should still be green?', () => {
+      expect(trafficLightState.currentState).to.equal(TrafficLightsStates.Green);
+    });
+    it('it should wait 1000ms before changing state of traffic lights?', async () => {
+      await promise;
+      const tEnd = process.hrtime.bigint();
+
+      expect(Number((tEnd - tStart) / BigInt(1000000))).to.greaterThan(999);
+    });
+    it('it should now be amber?', () => {
+      expect(trafficLightState.currentState).to.equal(TrafficLightsStates.Amber);
+    });
+  });
+});
