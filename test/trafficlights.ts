@@ -83,7 +83,7 @@ promise.then(() => {
   const tStart = process.hrtime.bigint();
   const promise = trafficLightState.changeAfter(TrafficLightsStates.Amber, 1026);
 
-  describe('Do change after 1000ms delay. (changeAfter)', () => {
+  describe('Set traffic light to amber after 1000ms delay. (changeAfter)', () => {
     it('it should still be green?', () => {
       expect(trafficLightState.currentState).to.equal(TrafficLightsStates.Green);
     });
